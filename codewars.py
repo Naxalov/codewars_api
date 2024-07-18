@@ -10,13 +10,7 @@ class User:
         self.data = data
         data_pages = requests.get(url=url_completed).json()
         pages = data_pages['totalPages']
-        data_problems = []
-        for page in range(pages):
-            url_pages = f'https://www.codewars.com/api/v1/users/allamurodxakimov/code-challenges/completed?page={page}'
-            data_p = requests.get(url=url_pages).json()
-            for problem in data_p['data']:
-                data_problems.append(problem)
-        self.problems = data_problems
+        self.pages = pages
     
     def get_name(self):
         return f"Name: {self.data['name']}"
@@ -29,8 +23,16 @@ class User:
     def codewars_check_completedAt(self, day: int, month: int, year: int):
         # date_now = datetime.now()
         # day, month, year = date_now.day, date_now.month, date_now.year
+        
+        data_problems = []
+        for page in range(self.pages):
+            url_pages = f'https://www.codewars.com/api/v1/users/allamurodxakimov/code-challenges/completed?page={page}'
+            data_p = requests.get(url=url_pages).json()
+            for problem in data_p['data']:
+                data_problems.append(problem)
+
         c = 0
-        for item in self.problems:
+        for item in data_problems:
             date_old = datetime.fromisoformat(item['completedAt'])
             day2, month2, year2 = date_old.day, date_old.month, date_old.year
             if day==day2 and month==month2 and year==year2:
