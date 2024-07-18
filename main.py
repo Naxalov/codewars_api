@@ -1,6 +1,7 @@
-from codewars import User
+import requests
+from codewars_total import User
 
-user = User('Naxalov')
+user = User('abdumajid_1')
 
 # Get total completed kata
-print(user.get_total())
+print(user.get_completed())
