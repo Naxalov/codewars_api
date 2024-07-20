@@ -12,5 +12,10 @@ class User:
 
         returns(bool): True if username is valid
         """
+        username=self.data.get('username')
+        if username==None:
+            return False
+        return True
+    
     def get_total(self):
         return self.data['codeChallenges']
