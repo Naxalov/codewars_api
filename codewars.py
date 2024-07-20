@@ -53,10 +53,11 @@ class User:
 
         returns(int): leaderboard position
         """
+        return self.data['leaderboardPosition']
     def get_skills(self):
         """
         Get list of user programming skills
 
         returns(list): list of porgramming languages
         """
-    
+        return self.data['skills']
