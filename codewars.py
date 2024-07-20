@@ -11,58 +11,58 @@ class User:
     def check_user(self):
         if "username" in self.data:
             return True
-        return "Error"
+        return False
     
     def get_id(self):
         if "id" in self.data:
             return self.data.get('id')
-        return "Error"
+        return False
 
     def get_username(self):
         if "username" in self.data:
             return self.data.get('username')
-        return "Error"
+        return False
     
     def get_name(self):
         if "name" in self.data:
             return self.data.get('name')
-        return "Error"
+        return False
 
     def get_honor(self):
         if "honor" in self.data:
             return self.data.get('honor')
-        return "Error"
+        return False
 
     def get_clan(self):
         if "clan" in self.data:
             return self.data.get('clan')
-        return "Error"
+        return False
 
     def get_leadpos(self):
         if "leaderboardPosition" in self.data:
             return self.data.get('leaderboardPosition')
-        return "Error"
+        return False
 
     def get_skills(self):
         if "skills" in self.data:
             return self.data.get('skills')
-        return "Error"
+        return False
 
     def get_langs(self):
         if "languages" in self.data:
             return self.data.get('languages')
-        return "Error"
+        return False
         
 
     def get_rank(self):
         if "ranks" in self.data:
             return self.data.get('ranks')
-        return "Error"
+        return False
 
     def get_total(self):
         if "codeChallenges" in self.data:
             return self.data.get('codeChallenges').get('totalCompleted')
-        return "Error"
+        return False
 
 
 class Task:
