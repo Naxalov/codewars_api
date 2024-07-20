@@ -47,12 +47,15 @@ class User:
 
         returns(int): total honor points
         """
+        return self.data.get('honor')
+
     def get_clan(self):
         """
         Get clan name
 
         returns(str): clan name
         """
+        return self.data.get('clan')
     def get_leaderboard_position(self):
         """
         Get leaderboard position
