@@ -27,6 +27,9 @@ class User:
 
         returns(int): total number of completed kata
         """
+        if self.check_username() == True:
+            return self.data["codeChallenges"]["totalCompleted"]
+        return False
 
     def get_name(self):
         """
@@ -34,6 +37,9 @@ class User:
 
         returns(str): username
         """
+        if self.check_username() == True:
+            return self.data["name"]
+        return False
         
     def get_honor(self):
         """
@@ -41,23 +47,26 @@ class User:
 
         returns(int): total honor points
         """
+        return self.data.get('honor')
+
     def get_clan(self):
         """
         Get clan name
 
         returns(str): clan name
         """
+        return self.data.get('clan')
     def get_leaderboard_position(self):
         """
         Get leaderboard position
 
         returns(int): leaderboard position
         """
-        return self.data['leaderboardPosition']
+        return self.get('leaderboardPosition')
     def get_skills(self):
         """
         Get list of user programming skills
 
         returns(list): list of porgramming languages
         """
-        return self.data['skills']
+        return self.get('skills')
