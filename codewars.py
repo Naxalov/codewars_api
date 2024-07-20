@@ -7,6 +7,10 @@ class User:
        self.data = requests.get(f'https://www.codewars.com/api/v1/users/{username}').json() 
 
     def check_username(self):
-        return self.data['reason']
+        """
+        Check if username is valid
+
+        returns(bool): True if username is valid
+        """
     def get_total(self):
         return self.data['codeChallenges']
