@@ -5,4 +5,6 @@ user = User('naxalov')
 print(user.check_username())
 print(user.data)
 # Get total completed kata
-# print(user.get_total())
+print(user.get_total())
+# Get name of the user
+print(user.get_name())
