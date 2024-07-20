@@ -11,6 +11,12 @@ class User:
         data_pages = requests.get(url=url_completed).json()
         pages = data_pages['totalPages']
         self.pages = pages
+        
+    def check_username(self):
+        if self.data.get('username')!=None:
+            return True
+        else:
+            return False
     
     def get_name(self):
         return f"Name: {self.data['name']}"
@@ -26,7 +32,7 @@ class User:
         
         data_problems = []
         for page in range(self.pages):
-            url_pages = f'https://www.codewars.com/api/v1/users/allamurodxakimov/code-challenges/completed?page={page}'
+            url_pages = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed?page={page}'
             data_p = requests.get(url=url_pages).json()
             for problem in data_p['data']:
                 data_problems.append(problem)
