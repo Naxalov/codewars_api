@@ -14,7 +14,7 @@ class User:
         return "Error"
     
     def get_id(self):
-        if "username" in self.data:
+        if "id" in self.data:
             return self.data.get('id')
         return "Error"
 
@@ -24,43 +24,43 @@ class User:
         return "Error"
     
     def get_name(self):
-        if "username" in self.data:
+        if "name" in self.data:
             return self.data.get('name')
         return "Error"
 
     def get_honor(self):
-        if "username" in self.data:
+        if "honor" in self.data:
             return self.data.get('honor')
         return "Error"
 
     def get_clan(self):
-        if "username" in self.data:
+        if "clan" in self.data:
             return self.data.get('clan')
         return "Error"
 
     def get_leadpos(self):
-        if "username" in self.data:
+        if "leaderboardPosition" in self.data:
             return self.data.get('leaderboardPosition')
         return "Error"
 
     def get_skills(self):
-        if "username" in self.data:
+        if "skills" in self.data:
             return self.data.get('skills')
         return "Error"
 
     def get_langs(self):
-        if "username" in self.data:
+        if "languages" in self.data:
             return self.data.get('languages')
         return "Error"
         
 
     def get_rank(self):
-        if "username" in self.data:
+        if "ranks" in self.data:
             return self.data.get('ranks')
         return "Error"
 
     def get_total(self):
-        if "username" in self.data:
+        if "codeChallenges" in self.data:
             return self.data.get('codeChallenges').get('totalCompleted')
         return "Error"
 

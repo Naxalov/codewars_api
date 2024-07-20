@@ -1,6 +1,6 @@
 from codewars import User , Task
 
-user = User('Kamoliddin-Otamurodo')
+user = User('Kamoliddin-Otamurodov')
 task = Task('Kamoliddin-Otamurodov')
 
 print(user.check_user())
@@ -14,4 +14,4 @@ print(user.get_skills())
 print(user.get_rank())
 print(user.get_total())
 
-print(task.get_task_bydate("2023-12-03"))
+#print(task.get_task_bydate("2023-12-03"))
