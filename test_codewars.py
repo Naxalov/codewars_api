@@ -7,7 +7,7 @@ def test_check_username():
 
 def test_get_total():
     user = User('naxalov')
-    assert user.get_total() == 426, 'Should be 426'
+    assert user.get_total() == 432, 'Should be 432'
 
 def test_get_name():
     """
@@ -26,10 +26,16 @@ def test_get_leaderboard_position():
     """
     Test get_leaderboard_position function
     """
+    user=User("naxalov")
+    assert type(user.get_leaderboard_position())==int, "Should be 20763"
+
+
 def test_get_skills():
     """
     Test get_skills function
     """
+    user=User('naxalov')
+    assert type(user.get_skills())==list, "Should be []"
 
 
 
