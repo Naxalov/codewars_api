@@ -28,8 +28,24 @@ class Users:
         This method returns the total number of completed for all users
 
         returns:
-            result(dict): total number of completed for all users
+            result(list[dict]): total number of completed for all users
         """
+        user = {
+            'username':'',
+            'total_completed':0,
+            'name':'',
+        }
+        result = []
+        for username in self.users:
+            user = User(username)
+            user={
+                'username':username,
+                'total_completed':user.get_total(),
+                # 'name':self.get_name(username),
+            }
+            result.append(user)
+        return result
+
 
     def export_total_completed_to_csv(self):
         """
