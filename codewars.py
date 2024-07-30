@@ -1,4 +1,40 @@
 import requests
+
+class Users:
+    """
+    Users class
+    """
+    def __init__(self,users:list):
+        self.users = users
+    def add_user(self,username):
+        """
+        This method adds a new user to the list of users
+
+        args:
+            username(str): username
+        returns:
+            total(int): total number of users
+        """
+    def get_num_users(self):
+        """
+        This method returns the total number of users
+
+        returns:
+            total(int): total number of users
+        """
+
+    def get_total_completed(self):
+        """
+        This method returns the total number of completed for all users
+
+        returns:
+            result(dict): total number of completed for all users
+        """
+
+    def export_total_completed_to_csv(self):
+        """
+        This method exports the total number of completed for all users to a csv file
+        """
 class User:
     """
     User class
