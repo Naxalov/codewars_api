@@ -1,4 +1,7 @@
 import requests
+import csv
+input_file='codewars.csv'
+output_file='codewars.csv'
 
 class Users:
     """
@@ -42,7 +45,33 @@ class Users:
     def export_total_completed_to_csv(self):
         """
         This method exports the total number of completed for all users to a csv file
+
+        args:
+            input_file(str): name of the input csv file
+            output_file(str): name of the output csv file
         """
+        total_completed = self.get_total_completed()["total_completed"]
+
+        # Read the input CSV file
+        with open(input_file, mode='r', newline='') as file:
+            reader = csv.reader(file)
+            data = [row for row in reader]
+
+        # Add the new column to the header
+        header = data[0]
+        header.append('total_completed')
+
+        # Add the total_completed value to the first row
+        data[1].append(total_completed)
+
+        # Add empty values to the rest of the rows for the new column
+        for row in data[2:]:
+            row.append('')
+
+        # Write the updated data to the output CSV file
+        with open(output_file, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(data)
 
 class User:
     """
