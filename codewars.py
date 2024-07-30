@@ -15,6 +15,9 @@ class Users:
         returns:
             total(int): total number of users
         """
+        if User(username).check_username()==True:
+            self.users.append(username)
+        return len(self.users)
     def get_num_users(self):
         """
         This method returns the total number of users
@@ -22,6 +25,7 @@ class Users:
         returns:
             total(int): total number of users
         """
+        return len(self.users)
 
     def get_total_completed(self):
         """
@@ -30,11 +34,18 @@ class Users:
         returns:
             result(dict): total number of completed for all users
         """
+        l={}
+        for i in self.users:
+            get_total=User(i).get_total()
+            l[i]=get_total
+        return l
+
 
     def export_total_completed_to_csv(self):
         """
         This method exports the total number of completed for all users to a csv file
         """
+
 class User:
     """
     User class
