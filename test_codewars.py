@@ -1,3 +1,4 @@
+
 from codewars import User
 import datetime
 
@@ -35,6 +36,9 @@ def test_get_leaderboard_position():
     """
     Test get_leaderboard_position function
     """
+    user = User('allamurodxakimov')
+    assert type(user.get_leaderboard_position()) == int, 'Should, type int'
+
     user=User("naxalov")
     assert type(user.get_leaderboard_position())==int, "Should be 20763"
 
@@ -43,6 +47,8 @@ def test_get_skills():
     """
     Test get_skills function
     """
+    user = User('allamurodxakimov')
+    assert type(user.get_skills()) == list , "Should, type list"
     user=User('naxalov')
     assert type(user.get_skills())==list, "Should be []"
 def test_get_completed_by_date():
