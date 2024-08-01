@@ -45,7 +45,50 @@ class Users:
         """
         This method returns the total number of completed for all users by date type (daily, weekly, monthly)
         """
+        
+        now = datetime.now()
+        
+        user_data ={
+        'username': '',
+        'fullname': '',
+        'total_completed': 0
+        }
+        result_users = []
+        for user in self.users:
+            url_pages = f"https://www.codewars.com/api/v1/users/{user['username']}/code-challenges/completed"
+            data_Com = requests.get(url=url_pages).json()
+            count = 0
+            if date_type == 'daily':
+                day, month, year = now.day, now.month, now.year
+                for item in data_Com['data']:        
+                    date_old = datetime.fromisoformat(item['completedAt'])
+                    day_at, month_at, year_at = date_old.day, date_old.month, date_old.year
+                    if day_at==day and month_at==month and year_at==year:
+                        count += 1
 
+            elif date_type == 'weekly':
+                now_second = now.timestamp()
+                for item in data_Com['data']:        
+                    date_old = datetime.fromisoformat(item['completedAt'])
+                    date_old_second = date_old.timestamp()
+                    if abs(now_second-date_old_second)<=7*24*3600:
+                        count += 1
+
+            elif date_type == 'monthly':
+                now_second = now.timestamp()
+                for item in data_Com['data']:        
+                    date_old = datetime.fromisoformat(item['completedAt'])
+                    date_old_second = date_old.timestamp()
+                    if abs(now_second-date_old_second)<=30*24*3600:
+                        count += 1
+            user_data = {
+                "username": user['username'],
+                "fullname": user['fullname'],
+                "total_completed": count
+            }      
+            result_users.append(user_data)
+        return result_users
+    
     def get_total_completed(self):
         """
         This method returns the total number of completed for all users
@@ -184,10 +227,17 @@ class User:
 
         returns(int): number of completed kata
         """
-        # Get last day  
-        # Get number of completed kata
-        
-        
+        now = datetime.now()
+        day, month, year = now.day, now.month, now.year
+        url_pages = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed'
+        data_Com = requests.get(url=url_pages).json()
+        c = 0
+        for item in data_Com['data']:        
+            date_old = datetime.fromisoformat(item['completedAt'])
+            day_at, month_at, year_at = date_old.day, date_old.month, date_old.year
+            if day_at==day and month_at==month and year_at==year:
+                c+=1
+        return c
 
     def get_name(self):
         """
