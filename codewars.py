@@ -82,6 +82,27 @@ class User:
         if self.check_username() == True:
             return self.data["codeChallenges"]["totalCompleted"]
         return False
+    def get_completed_by_date(self,date):
+        """
+        Get number of completed kata by date
+
+        args:
+            date(str): date
+        returns(int): number of completed kata
+        """
+    def get_weekly(self):
+        """
+        Get number of completed kata last week
+
+        returns(int): number of completed kata
+        """
+    def get_monthly(self):
+        """
+        Get number of completed kata last month
+
+        returns(int): number of completed kata
+        """
+        
 
     def get_name(self):
         """
