@@ -81,10 +81,11 @@ class Users:
                     date_old_second = date_old.timestamp()
                     if abs(now_second-date_old_second)<=30*24*3600:
                         count += 1
-                        
-            user_data['username'] = user['username']
-            user_data['fullname'] = user['fullname']
-            user_data['total_completed'] = count
+            user_data = {
+                "username": user['username'],
+                "fullname": user['fullname'],
+                "total_completed": count
+            }      
             result_users.append(user_data)
         return result_users
     
