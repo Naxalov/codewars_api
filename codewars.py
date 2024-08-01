@@ -43,6 +43,7 @@ class Users:
                 'total_completed':user.get_total(),
             }
             result.append(user)
+        result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
         return result
 
 
