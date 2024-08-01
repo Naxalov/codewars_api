@@ -41,7 +41,6 @@ class Users:
             user={
                 'username':username,
                 'total_completed':user.get_total(),
-                # 'name':self.get_name(username),
             }
             result.append(user)
         return result
