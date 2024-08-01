@@ -12,6 +12,14 @@ users = [
     {
         "username": 'NilufarHasanova',
         "fullname": "Nilufar Hasanova"
+    },
+    {
+        'username': "shohrux1308!%3F!",
+        "fullname": "Shoxrux Bahromov"
+    },
+    {
+        "username": "ZohirJalilov",
+        "fullname": "Zohir Jalilov"
     }
 ]
 user_all = Users(users)
