@@ -1,4 +1,75 @@
 import requests
+import csv
+
+class Users:
+    """
+    Users class
+    """
+    def __init__(self,users:list):
+        self.users = users
+
+    def add_user(self,username):
+        """
+        This method adds a new user to the list of users
+
+        args:
+            username(str): username
+        returns:
+            total(int): total number of users
+        """
+        user = User(username)
+        self.users.append(user)
+        return len(self.users)
+
+    def get_num_users(self):
+        """
+        This method returns the total number of users
+
+        returns:
+            total(int): total number of users
+        """
+        user_count = {
+            'users_count': 0
+        }
+        for user in self.users:
+            user_count['users_count'] += 1
+        return user_count    
+
+    def get_total_completed(self):
+        """
+        This method returns the total number of completed for all users
+
+        returns:
+            result(list[dict]): total number of completed for all users
+        """
+        user = {
+            'username':'',
+            'total_completed':0,
+            'name':'',
+        }
+        result = []
+        for username in self.users:
+            user = User(username)
+            user={
+                'username':username,
+                'total_completed':user.get_total(),
+                'name': user.get_name()
+            }
+            result.append(user)
+        return result
+
+    def export_total_completed_to_csv(self):
+        """
+        This method exports the total number of completed for all users to a csv file
+        """
+        with open('codewars_total.csv', mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['id', 'Username', 'Completed Tasks'])
+            for id, username in enumerate(self.users):
+                user = User(username)
+                writer.writerow([id+1, username, user.get_total()])
+        return 'OK'
+
 class User:
     """
     User class
