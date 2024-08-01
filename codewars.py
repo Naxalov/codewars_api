@@ -1,6 +1,6 @@
 import requests
 import csv
-
+from datetime import datetime, date
 class Users:
     """
     Users class
@@ -56,12 +56,16 @@ class Users:
                 'name': user.get_name()
             }
             result.append(user)
+        result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
         return result
+
+
 
     def export_total_completed_to_csv(self):
         """
         This method exports the total number of completed for all users to a csv file
         """
+        
         with open('codewars_total.csv', mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['id', 'Username', 'Completed Tasks'])
@@ -75,11 +79,11 @@ class User:
     User class
     """
     def __init__(self,username):
-       self.data = requests.get(f'https://www.codewars.com/api/v1/users/{username}').json() 
-       if self.check_username():
-           self.username = username
-       else:
-           self.username = None
+        self.data = requests.get(f'https://www.codewars.com/api/v1/users/{username}').json() 
+        if self.check_username():
+            self.username = username
+        else:
+            self.username = None
 
     def check_username(self):
         """
@@ -101,6 +105,68 @@ class User:
         if self.check_username() == True:
             return self.data["codeChallenges"]["totalCompleted"]
         return False
+    
+    def get_completed_by_date(self,date):
+        """
+        Get number of completed kata by date
+
+        args:
+            date(str): date
+        returns(int): number of completed kata
+        """
+        url_completed = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed'
+        data_pages = requests.get(url=url_completed).json()
+        pages = data_pages['totalPages']
+        day, month, year = date
+        data_problems = []
+        for page in range(pages):
+            url_pages = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed?page={page}'
+            data_p = requests.get(url=url_pages).json()
+            for problem in data_p['data']:
+                data_problems.append(problem)
+        c = 0
+        for item in data_problems:
+            date_old = datetime.fromisoformat(item['completedAt'])
+            day2, month2, year2 = date_old.day, date_old.month, date_old.year
+            if day==day2 and month==month2 and year==year2:
+                c+=1
+        return f'{self.username}: {c}'
+    
+    def get_weekly(self):
+        """
+        Get number of completed kata last week
+
+        returns(int): number of completed kata
+        """
+        now = datetime.today()
+        now_second = now.timestamp()
+        url_pages = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed'
+        data_Com = requests.get(url=url_pages).json()
+        c = 0
+        for item in data_Com['data']:        
+            date_old = datetime.fromisoformat(item['completedAt'])
+            date_old_second = date_old.timestamp()
+            if abs(now_second-date_old_second)<=7*24*3600:
+                c+=1
+        return f'{self.username}: {c}'
+
+    def get_monthly(self):
+        """
+        Get number of completed kata last month
+
+        returns(int): number of completed kata
+        """
+        now = datetime.now()
+        now_second = now.timestamp()
+        url_pages = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed'
+        data_Com = requests.get(url=url_pages).json()
+        c = 0
+        for item in data_Com['data']:        
+            date_old = datetime.fromisoformat(item['completedAt'])
+            date_old_second = date_old.timestamp()
+            if abs(now_second-date_old_second)<=30*24*3600:
+                c+=1
+        return f'{self.username}: {c}'
 
     def get_name(self):
         """
