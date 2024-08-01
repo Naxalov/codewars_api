@@ -1,6 +1,6 @@
 import requests
 import csv
-from datetime import datetime, date
+from datetime import datetime, timedelta
 class Users:
     """
     Users class
@@ -67,20 +67,23 @@ class Users:
                         count += 1
 
             elif date_type == 'weekly':
-                now_second = now.timestamp()
+                weekly_start = now - timedelta(days=7)
+                weekly_start = weekly_start.strftime('%Y-%m-%d')
+                weekly_start = datetime.strptime(weekly_start, '%Y-%m-%d')
                 for item in data_Com['data']:        
-                    date_old = datetime.fromisoformat(item['completedAt'])
-                    date_old_second = date_old.timestamp()
-                    if abs(now_second-date_old_second)<=7*24*3600:
+                    date_end = datetime.strptime(item['completedAt'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                    if weekly_start <= date_end:
                         count += 1
 
             elif date_type == 'monthly':
-                now_second = now.timestamp()
+                monthly_start = now - timedelta(days=30)
+                monthly_start = monthly_start.strftime('%Y-%m-%d')
+                monthly_start = datetime.strptime(monthly_start, '%Y-%m-%d')
                 for item in data_Com['data']:        
-                    date_old = datetime.fromisoformat(item['completedAt'])
-                    date_old_second = date_old.timestamp()
-                    if abs(now_second-date_old_second)<=30*24*3600:
+                    date_end = datetime.strptime(item['completedAt'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                    if monthly_start <= date_end:
                         count += 1
+
             user_data = {
                 "username": user['username'],
                 "fullname": user['fullname'],
