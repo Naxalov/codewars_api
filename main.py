@@ -3,7 +3,7 @@ import csv
 
 users = []
 # Read data from csv file
-with open('codewars.csv') as csv_file:
+with open('ai_2024_1.csv') as csv_file:
     # Read data from csv file and skip header
     csv_reader = csv.reader(csv_file, delimiter=',')
     # Skip header
@@ -14,7 +14,7 @@ with open('codewars.csv') as csv_file:
         fullname = row[1]
         user = User(username)
         # print(user.get_completed_by_date((29, 7, 2024)))
-        print(user.get_weekly())
+        print(f'{fullname}: {user.get_daily()}')
         # print(user.get_monthly())
 
         # print(f'{fullname} : {user.get_total()}')
