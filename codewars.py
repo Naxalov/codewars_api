@@ -173,10 +173,17 @@ class User:
 
         returns(int): number of completed kata
         """
-        # Get last day  
-        # Get number of completed kata
-        
-        
+        now = datetime.now()
+        day, month, year = now.day, now.month, now.year
+        url_pages = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed'
+        data_Com = requests.get(url=url_pages).json()
+        c = 0
+        for item in data_Com['data']:        
+            date_old = datetime.fromisoformat(item['completedAt'])
+            day_at, month_at, year_at = date_old.day, date_old.month, date_old.year
+            if day_at==day and month_at==month and year_at==year:
+                c+=1
+        return c
 
     def get_name(self):
         """
