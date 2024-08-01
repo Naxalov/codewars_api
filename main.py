@@ -3,7 +3,8 @@ import csv
 
 users = []
 # Read data from csv file
-with open('ai_2024_1.csv') as csv_file:
+path ='ai_2024_1.csv'
+with open(path) as csv_file:
     # Read data from csv file and skip header
     csv_reader = csv.reader(csv_file, delimiter=',')
     # Skip header
