@@ -4,8 +4,14 @@ from datetime import datetime, date
 class Users:
     """
     Users class
+    user ={
+        'username': username,
+        'fullname': fullname,
+        'total_completed': total_completed
+    
+    }
     """
-    def __init__(self,users:list):
+    def __init__(self,users:list[dict]):
         self.users = users
 
     def add_user(self,username):
@@ -34,6 +40,11 @@ class Users:
         for user in self.users:
             user_count['users_count'] += 1
         return user_count    
+
+    def get_total_date(self,date_type):
+        """
+        This method returns the total number of completed for all users by date type (daily, weekly, monthly)
+        """
 
     def get_total_completed(self):
         """
