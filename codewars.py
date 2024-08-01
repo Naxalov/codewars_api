@@ -102,6 +102,15 @@ class User:
 
         returns(int): number of completed kata
         """
+    def get_daily(self):
+        """
+        Get number of completed kata last day
+
+        returns(int): number of completed kata
+        """
+        # Get last day  
+        # Get number of completed kata
+        
         
 
     def get_name(self):
