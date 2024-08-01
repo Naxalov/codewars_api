@@ -35,7 +35,12 @@ def test_get_leaderboard_position():
     """
     Test get_leaderboard_position function
     """
+    user = User('allamurodxakimov')
+    assert type(user.get_leaderboard_position()) == int, 'Should, type int'
 def test_get_skills():
     """
     Test get_skills function
     """
+    user = User('allamurodxakimov')
+    assert type(user.get_skills()) == list , "Should, type list"
+

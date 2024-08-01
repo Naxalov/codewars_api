@@ -60,7 +60,6 @@ class Users:
         return result
 
 
-
     def export_total_completed_to_csv(self):
         """
         This method exports the total number of completed for all users to a csv file
@@ -130,7 +129,7 @@ class User:
             day2, month2, year2 = date_old.day, date_old.month, date_old.year
             if day==day2 and month==month2 and year==year2:
                 c+=1
-        return f'{self.username}: {c}'
+        return c
     
     def get_weekly(self):
         """
@@ -148,7 +147,7 @@ class User:
             date_old_second = date_old.timestamp()
             if abs(now_second-date_old_second)<=7*24*3600:
                 c+=1
-        return f'{self.username}: {c}'
+        return c
 
     def get_monthly(self):
         """
@@ -166,7 +165,7 @@ class User:
             date_old_second = date_old.timestamp()
             if abs(now_second-date_old_second)<=30*24*3600:
                 c+=1
-        return f'{self.username}: {c}'
+        return c
 
     def get_name(self):
         """
