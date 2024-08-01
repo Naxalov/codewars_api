@@ -53,7 +53,6 @@ class Users:
             user={
                 'username':username,
                 'total_completed':user.get_total(),
-                'name': user.get_name()
             }
             result.append(user)
         result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
@@ -104,7 +103,7 @@ class User:
         if self.check_username() == True:
             return self.data["codeChallenges"]["totalCompleted"]
         return False
-    
+
     def get_completed_by_date(self,date):
         """
         Get number of completed kata by date
@@ -130,7 +129,7 @@ class User:
             if day==day2 and month==month2 and year==year2:
                 c+=1
         return c
-    
+
     def get_weekly(self):
         """
         Get number of completed kata last week
@@ -149,6 +148,7 @@ class User:
                 c+=1
         return c
 
+
     def get_monthly(self):
         """
         Get number of completed kata last month
@@ -166,6 +166,17 @@ class User:
             if abs(now_second-date_old_second)<=30*24*3600:
                 c+=1
         return c
+
+    def get_daily(self):
+        """
+        Get number of completed kata last day
+
+        returns(int): number of completed kata
+        """
+        # Get last day  
+        # Get number of completed kata
+        
+        
 
     def get_name(self):
         """

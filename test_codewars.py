@@ -1,5 +1,6 @@
 
 from codewars import User
+import datetime
 
 def test_check_username():
     user = User('Naxalov')
@@ -8,7 +9,7 @@ def test_check_username():
 
 def test_get_total():
     user = User('naxalov')
-    assert type(user.get_total()) == int, 'Should be int'
+    assert type(user.get_total()) == int, 'Should be number'
 
 def test_get_name():
     """
@@ -37,10 +38,31 @@ def test_get_leaderboard_position():
     """
     user = User('allamurodxakimov')
     assert type(user.get_leaderboard_position()) == int, 'Should, type int'
+
+    user=User("naxalov")
+    assert type(user.get_leaderboard_position())==int, "Should be 20763"
+
+
 def test_get_skills():
     """
     Test get_skills function
     """
     user = User('allamurodxakimov')
     assert type(user.get_skills()) == list , "Should, type list"
+    user=User('naxalov')
+    assert type(user.get_skills())==list, "Should be []"
+def test_get_completed_by_date():
+    user=User('naxalov')
+    date=datetime.date(2024,7,30)
+    assert type(user.get_completed_by_date((30,7,2024)))==int, "Should be number "
+def test_get_weekly():
+    user=User('naxalov')
+    assert type(user.get_weekly())==int, "Should be number "
+def test_get_monthly():
+    user=User('naxalov')
+    assert type(user.get_monthly())==int, "Should be number"
+
+
+
+
 

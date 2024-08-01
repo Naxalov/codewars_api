@@ -1,6 +1,7 @@
 from codewars import User, Users
 import csv
 
+users = []
 # Read data from csv file
 with open('codewars.csv') as csv_file:
     # Read data from csv file and skip header
@@ -32,3 +33,18 @@ with open('codewars.csv') as csv_file:
 #     for user in completed:
 #         print(user)
 #         writer.writerow([user['name'], user['username'], user['total_completed']])
+        users.append(username)
+    
+
+from pprint import pprint
+print(users)
+grpup = Users(users)
+completed = grpup.get_total_completed()
+print(completed)
+# Convert to CSV
+with open('results.csv', 'w', newline='') as csv_file:
+    writer = csv.writer(csv_file)
+    writer.writerow(['username', 'total_completed'])
+    for user in completed:
+        print(user)
+        writer.writerow([user['username'], user['total_completed']])
