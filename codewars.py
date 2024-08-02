@@ -51,15 +51,15 @@ class Users:
         """
         user = {
             'username':'',
-            'total_completed':0,
             'name':'',
+            'total_completed':0,
         }
         result = []
         for user in self.users:
             user={
+                'name':user.fullname,
                 'username':user.username,
-                'total_completed':user.get_daily(),
-                'name':user.fullname
+                'total_completed':user.get_daily()
             }
             result.append(user)
         result = sorted(result,key=lambda x:x['total_completed'],reverse=True)

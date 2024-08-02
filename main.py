@@ -2,14 +2,21 @@ from codewars import User, Users
 from pprint import pprint
 import csv
 
+# Convert dict to CSV file
+def dict_to_csv(data, path):
+    with open(path, 'w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
+
 # users = []
 # Read data from csv file
-path ='python_2.csv'
+group ='python_2'
 users = [
 
 ]
 
-with open(path, 'r') as file:
+with open(f'{group}.csv', 'r') as file:
     reader = csv.DictReader(file)
     for row in reader:
         users.append({
@@ -20,9 +27,7 @@ with open(path, 'r') as file:
 print(users)
 users = Users(users)
 
-pprint(users.get_total_daily())
+daily=users.get_total_daily()
+dict_to_csv(daily,f'{group}_daily.csv')
 
 
-# user = User('elmurodov')
-# pprint(user.get_completed())
-# print(user.get_daily())
