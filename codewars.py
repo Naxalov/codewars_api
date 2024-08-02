@@ -11,8 +11,12 @@ class Users:
     
     }
     """
-    def __init__(self,users:list[dict]):
-        self.users = users
+    def __init__(self,users:list):
+        self.users = []
+        for user in users:
+            user_obj = User(user['username'],user['fullname'])
+            print(f'{user['fullname']} added')
+            self.users.append(user_obj)
 
     def add_user(self,username):
         """
@@ -41,6 +45,25 @@ class Users:
             user_count['users_count'] += 1
         return user_count    
 
+    def get_total_daily(self):
+        """
+        This method returns the total number of completed for all users by daily
+        """
+        user = {
+            'username':'',
+            'total_completed':0,
+            'name':'',
+        }
+        result = []
+        for user in self.users:
+            user={
+                'username':user.username,
+                'total_completed':user.get_daily(),
+                'name':user.fullname
+            }
+            result.append(user)
+        result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
+        return result
     def get_total_date(self,date_type):
         """
         This method returns the total number of completed for all users by date type (daily, weekly, monthly)
@@ -130,8 +153,13 @@ class User:
     """
     User class
     """
-    def __init__(self,username):
+    def __init__(self,username,fullname=None):
         self.data = requests.get(f'https://www.codewars.com/api/v1/users/{username}').json() 
+        if fullname == None:
+            raise ValueError(f'For {username} fullname is not specified')
+        else:
+            self.fullname = fullname
+
         if self.check_username():
             self.username = username
         else:
