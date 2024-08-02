@@ -15,7 +15,7 @@ class Users:
         self.users = []
         for user in users:
             user_obj = User(user['username'],user['fullname'])
-            print(f'{user['fullname']} added')
+            print(f"{user['fullname']} added")
             self.users.append(user_obj)
 
     def add_user(self,username):
