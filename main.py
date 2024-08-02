@@ -16,7 +16,7 @@ users = [
 
 ]
 
-with open(f'{group}.csv', 'r') as file:
+with open(f'group/{group}.csv', 'r') as file:
     reader = csv.DictReader(file)
     for row in reader:
         users.append({
