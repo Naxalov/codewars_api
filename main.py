@@ -14,12 +14,8 @@ with open(path) as csv_file:
         username = row[2]
         fullname = row[1]
         user = User(username)
-        # print(user.get_completed_by_date((29, 7, 2024)))
-        print(user.get_weekly())
-        # print(user.get_monthly())
 
-        # print(f'{fullname} : {user.get_total()}')
-        # print(user.get_name())
+      
         # users.append(username)
 # user_all = Users(users)
 # print(user_all.get_total_completed())
@@ -49,3 +45,5 @@ with open('results.csv', 'w', newline='') as csv_file:
     for user in completed:
         print(user)
         writer.writerow([user['username'], user['total_completed']])
+
+
