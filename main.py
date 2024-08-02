@@ -24,10 +24,13 @@ with open(f'{group}.csv', 'r') as file:
             'fullname': row['fullname']
         })
         
-print(users)
+# print(users)
 users = Users(users)
 
 daily=users.get_total_daily()
 dict_to_csv(daily,f'{group}_daily.csv')
+
+weekly = users.get_total_weekly()
+dict_to_csv(weekly,f'{group}_weekly.csv')
 
 

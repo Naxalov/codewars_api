@@ -1,6 +1,6 @@
 import requests
 import csv
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 class Users:
     """
     Users class
@@ -60,6 +60,26 @@ class Users:
                 'name':user.fullname,
                 'username':user.username,
                 'total_completed':user.get_daily()
+            }
+            result.append(user)
+        result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
+        return result
+    
+    def get_total_weekly(self):
+        """
+        This method returns the total number of completed for all users by weekly
+        """
+        user = {
+            'username':'',
+            'name':'',
+            'total_completed':0,
+        }
+        result = []
+        for user in self.users:
+            user={
+                'name':user.fullname,
+                'username':user.username,
+                'total_completed':user.get_weekly()
             }
             result.append(user)
         result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
@@ -228,24 +248,7 @@ class User:
                 c+=1
         return c
 
-    def get_weekly(self):
-        """
-        Get number of completed kata last week
-
-        returns(int): number of completed kata
-        """
-        now = datetime.today()
-        now_second = now.timestamp()
-        url_pages = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed'
-        data_Com = requests.get(url=url_pages).json()
-        c = 0
-        for item in data_Com['data']:        
-            date_old = datetime.fromisoformat(item['completedAt'])
-            date_old_second = date_old.timestamp()
-            if abs(now_second-date_old_second)<=7*24*3600:
-                c+=1
-        return c
-
+  
 
     def get_monthly(self):
         """
@@ -285,6 +288,24 @@ class User:
                 c+=1
           
         return c
+    def get_weekly(self):
+            """
+            Get number of completed kata last week
+
+            returns(int): number of completed kata
+            """
+            # Get current week date
+            week_date = datetime.now().date() - timedelta(days=datetime.now().weekday())
+
+            data = self.completed['data']
+            total = 0 # Total number of completed kata in current week
+            for item in data:        
+                completed_at = datetime.fromisoformat(item['completedAt'])
+                # Check if completed date is in current week
+                if week_date <= completed_at.date() <= week_date + timedelta(days=7):
+                    total+=1
+           
+            return total
 
     def get_name(self):
         """
