@@ -1,63 +1,28 @@
 from codewars import User, Users
+from pprint import pprint
 import csv
 
 # users = []
 # Read data from csv file
-path ='ai_2024_1.csv'
+path ='python_2.csv'
 users = [
-    {
-        'username': 'Amir2010',
-        'fullname': "Amir Hasanov"
-    },
-    {
-        "username": 'NilufarHasanova',
-        "fullname": "Nilufar Hasanova"
-    }
+
 ]
-user_all = Users(users)
-print(user_all.get_total_date('weekly'))
-# with open(path) as csv_file:
-    # Read data from csv file and skip header
-    # csv_reader = csv.reader(csv_file, delimiter=',')
-    # Skip header
-    # next(csv_reader)
-    # users = []
-    # for row in csv_reader:
-        # username = row[2]
-        # fullname = row[1]
-        # user = User(username)
-        # print(user.get_completed_by_date((29, 7, 2024)))
-        # print(f'{fullname}: {user.get_daily()}')
-        # print(user.get_monthly())
 
-        # print(f'{fullname} : {user.get_total()}')
-        # print(user.get_name())
-        # users.append(username)
-# user_all = Users(users)
-# print(user_all.get_total_completed())
-# print(user_all.get_num_users())
-# print(user_all.export_total_completed_to_csv())
-# completed = user_all.get_total_completed()
-# print(completed)
-# Convert to CSV
-# with open('results.csv', 'w', newline='') as csv_file:
-#     writer = csv.writer(csv_file)
-#     writer.writerow(['fullname','username', 'total_completed'])
-#     for user in completed:
-#         print(user)
-#         writer.writerow([user['name'], user['username'], user['total_completed']])
-#         users.append(username)
-    
+with open(path, 'r') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        users.append({
+            'username': row['username'],
+            'fullname': row['fullname']
+        })
+        
+print(users)
+users = Users(users)
 
-# from pprint import pprint
-# print(users)
-# grpup = Users(users)
-# completed = grpup.get_total_completed()
-# print(completed)
-# # Convert to CSV
-# with open('results.csv', 'w', newline='') as csv_file:
-#     writer = csv.writer(csv_file)
-#     writer.writerow(['username', 'total_completed'])
-#     for user in completed:
-#         print(user)
-#         writer.writerow([user['username'], user['total_completed']])
+pprint(users.get_total_daily())
+
+
+# user = User('elmurodov')
+# pprint(user.get_completed())
+# print(user.get_daily())
