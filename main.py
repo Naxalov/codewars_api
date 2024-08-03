@@ -12,28 +12,7 @@ def dict_to_csv(data, path):
 # users = []
 # Read data from csv file
 group ='python_2'
-users = [
-<<<<<<< HEAD
-    {
-        'username': 'Amir2010',
-        'fullname': "Amir Hasanov"
-    },
-    {
-        "username": 'NilufarHasanova',
-        "fullname": "Nilufar Hasanova"
-    },
-    {
-        'username': "shohrux1308!%3F!",
-        "fullname": "Shoxrux Bahromov"
-    },
-    {
-        "username": "ZohirJalilov",
-        "fullname": "Zohir Jalilov"
-    }
-=======
-
->>>>>>> daf42c009f9f735f60c69acc16eea3da50f941da
-]
+users = []
 
 with open(f'group/{group}.csv', 'r') as file:
     reader = csv.DictReader(file)
@@ -42,8 +21,8 @@ with open(f'group/{group}.csv', 'r') as file:
             'username': row['username'],
             'fullname': row['fullname']
         })
-        
-# print(users)
+
+
 users = Users(users)
 
 daily=users.get_total_daily()

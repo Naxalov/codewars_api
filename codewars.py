@@ -14,11 +14,11 @@ class Users:
     }
     """
     def __init__(self,users:list):
-        self.users = []
-        for user in users:
-            user_obj = User(user['username'],user['fullname'])
-            print(f"{user['fullname']} added")
-            self.users.append(user_obj)
+        self.users = users
+        # for user in users:
+        #     user_obj = User(user['username'],user['fullname'])
+        #     print(f"{user['fullname']} added")
+        #     self.users.append(user_obj)
 
     def add_user(self,username):
         """
@@ -51,19 +51,22 @@ class Users:
         """
         This method returns the total number of completed for all users by daily
         """
-        user = {
+        user_data = {
             'username':'',
             'name':'',
             'total_completed':0,
         }
         result = []
         for user in self.users:
-            user={
-                'name':user.fullname,
-                'username':user.username,
-                'total_completed':user.get_daily()
+            username = user['username']
+            fullname = user['fullname']
+            get_user = User(username, fullname)
+            user_data={
+                'name':user['fullname'],
+                'username':user['username'],
+                'total_completed':get_user.get_daily()
             }
-            result.append(user)
+            result.append(user_data)
         result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
         return result
     
@@ -78,21 +81,44 @@ class Users:
         }
         result = []
         for user in self.users:
-            user={
-                'name':user.fullname,
-                'username':user.username,
-                'total_completed':user.get_weekly()
+            username = user['username']
+            fullname = user['fullname']
+            get_user = User(username, fullname)
+            user_data={
+                'name':user['fullname'],
+                'username':user['username'],
+                'total_completed':get_user.get_weekly()
             }
-            result.append(user)
+            result.append(user_data)
+        result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
+        return result
+    
+    def get_total_monthly(self):
+        """
+        This method returns the total number of completed for all users by weekly
+        """
+        user = {
+            'username':'',
+            'name':'',
+            'total_completed':0,
+        }
+        result = []
+        for user in self.users:
+            username = user['username']
+            fullname = user['fullname']
+            get_user = User(username, fullname)
+            user_data={
+                'name':user['fullname'],
+                'username':user['username'],
+                'total_completed':get_user.get_monthly()
+            }
+            result.append(user_data)
         result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
         return result
     def get_total_date(self,date_type):
         """
         This method returns the total number of completed for all users by date type (daily, weekly, monthly)
-        """
-        
-        now = datetime.now()
-        
+        """        
         user_data ={
         'username': '',
         'fullname': '',
@@ -100,39 +126,24 @@ class Users:
         }
         result_users = []
         for user in self.users:
-            url_pages = f"https://www.codewars.com/api/v1/users/{user['username']}/code-challenges/completed"
-            data_Com = requests.get(url=url_pages).json()
-            count = 0
+            username = user['username']
+            fullname = user['fullname']
+            user_data = User(username, fullname)
+            
+            total = 0
             if date_type == 'daily':
-                day, month, year = now.day, now.month, now.year
-                for item in data_Com['data']:        
-                    date_old = datetime.fromisoformat(item['completedAt'])
-                    day_at, month_at, year_at = date_old.day, date_old.month, date_old.year
-                    if day_at==day and month_at==month and year_at==year:
-                        count += 1
+                total = user_data.get_daily()
 
             elif date_type == 'weekly':
-                weekly_start = now - timedelta(days=7)
-                weekly_start = weekly_start.strftime('%Y-%m-%d')
-                weekly_start = datetime.strptime(weekly_start, '%Y-%m-%d')
-                for item in data_Com['data']:        
-                    date_end = datetime.strptime(item['completedAt'], '%Y-%m-%dT%H:%M:%S.%fZ')
-                    if weekly_start <= date_end:
-                        count += 1
+                total = user_data.get_weekly()
 
             elif date_type == 'monthly':
-                monthly_start = now - timedelta(days=30)
-                monthly_start = monthly_start.strftime('%Y-%m-%d')
-                monthly_start = datetime.strptime(monthly_start, '%Y-%m-%d')
-                for item in data_Com['data']:        
-                    date_end = datetime.strptime(item['completedAt'], '%Y-%m-%dT%H:%M:%S.%fZ')
-                    if monthly_start <= date_end:
-                        count += 1
+                total = user_data.get_monthly()
 
             user_data = {
                 "username": user['username'],
                 "fullname": user['fullname'],
-                "total_completed": count
+                "total_completed": total
             }      
             result_users.append(user_data)
         return result_users
@@ -235,9 +246,7 @@ class User:
             date(str): date
         returns(int): number of completed kata
         """
-        url_completed = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed'
-        data_pages = requests.get(url=url_completed).json()
-        pages = data_pages['totalPages']
+        pages = self.completed['totalPages']
         day, month, year = date
         data_problems = []
         for page in range(pages):
@@ -245,33 +254,30 @@ class User:
             data_p = requests.get(url=url_pages).json()
             for problem in data_p['data']:
                 data_problems.append(problem)
-        c = 0
+        total = 0
         for item in data_problems:
             date_old = datetime.fromisoformat(item['completedAt'])
             day2, month2, year2 = date_old.day, date_old.month, date_old.year
             if day==day2 and month==month2 and year==year2:
-                c+=1
-        return c
-
-  
-
+                total += 1
+        return total  
+    
     def get_monthly(self):
         """
         Get number of completed kata last month
 
         returns(int): number of completed kata
         """
-        now = datetime.now()
-        now_second = now.timestamp()
-        url_pages = f'https://www.codewars.com/api/v1/users/{self.username}/code-challenges/completed'
-        data_Com = requests.get(url=url_pages).json()
-        c = 0
-        for item in data_Com['data']:        
-            date_old = datetime.fromisoformat(item['completedAt'])
-            date_old_second = date_old.timestamp()
-            if abs(now_second-date_old_second)<=30*24*3600:
-                c+=1
-        return c
+        monthly_date = datetime.now().date() - timedelta(days=datetime.now().month())
+        data = self.completed['data']
+        total = 0 # Total number of completed kata in current month
+        for item in data:        
+            completed_at = datetime.fromisoformat(item['completedAt'])
+            # Check if completed date is in current month
+            if monthly_date <= completed_at.date() <= monthly_date + timedelta(days=30):
+                total+=1
+        
+        return total
 
     def get_daily(self):
         """
@@ -282,17 +288,16 @@ class User:
         today = date.today()
        
       
-        c = 0
+        total = 0
         data = self.completed['data']
         for item in data:        
-            date_old = datetime.fromisoformat(item['completedAt'])
             # 2024, 8, 2
             completed_at =datetime.strptime(item['completedAt'], "%Y-%m-%dT%H:%M:%S.%fZ")
             # Compare dates
             if today == completed_at.date():
-                c+=1
+                total += 1
           
-        return c
+        return total
     def get_weekly(self):
             """
             Get number of completed kata last week
