@@ -12,9 +12,7 @@ def dict_to_csv(data, path):
 # users = []
 # Read data from csv file
 group ='python_2'
-users = [
-
-]
+users = []
 
 with open(f'group/{group}.csv', 'r') as file:
     reader = csv.DictReader(file)
@@ -23,14 +21,16 @@ with open(f'group/{group}.csv', 'r') as file:
             'username': row['username'],
             'fullname': row['fullname']
         })
-        
-# print(users)
+
+
 users = Users(users)
 
-daily=users.get_total_daily()
-dict_to_csv(daily,f'{group}_daily.csv')
+# daily=users.get_total_daily()
+# print(daily)
+# dict_to_csv(daily,f'{group}_daily.csv')
 
-weekly = users.get_total_weekly()
-dict_to_csv(weekly,f'{group}_weekly.csv')
+# weekly = users.get_total_weekly()
+# dict_to_csv(weekly,f'{group}_weekly.csv')
 
-
+mothly = users.get_total_monthly()
+dict_to_csv(mothly,f'{group}_monthly.csv')
