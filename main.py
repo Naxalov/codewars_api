@@ -1,10 +1,19 @@
 from codewars import User, Users
+from pprint import pprint
 import csv
+
+# Convert dict to CSV file
+def dict_to_csv(data, path):
+    with open(path, 'w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
 
 # users = []
 # Read data from csv file
-path ='ai_2024_1.csv'
+group ='python_2'
 users = [
+<<<<<<< HEAD
     {
         'username': 'Amir2010',
         'fullname': "Amir Hasanov"
@@ -21,51 +30,26 @@ users = [
         "username": "ZohirJalilov",
         "fullname": "Zohir Jalilov"
     }
+=======
+
+>>>>>>> daf42c009f9f735f60c69acc16eea3da50f941da
 ]
-user_all = Users(users)
-print(user_all.get_total_date('weekly'))
-# with open(path) as csv_file:
-    # Read data from csv file and skip header
-    # csv_reader = csv.reader(csv_file, delimiter=',')
-    # Skip header
-    # next(csv_reader)
-    # users = []
-    # for row in csv_reader:
-        # username = row[2]
-        # fullname = row[1]
-        # user = User(username)
-        # print(user.get_completed_by_date((29, 7, 2024)))
-        # print(f'{fullname}: {user.get_daily()}')
-        # print(user.get_monthly())
 
-        # print(f'{fullname} : {user.get_total()}')
-        # print(user.get_name())
-        # users.append(username)
-# user_all = Users(users)
-# print(user_all.get_total_completed())
-# print(user_all.get_num_users())
-# print(user_all.export_total_completed_to_csv())
-# completed = user_all.get_total_completed()
-# print(completed)
-# Convert to CSV
-# with open('results.csv', 'w', newline='') as csv_file:
-#     writer = csv.writer(csv_file)
-#     writer.writerow(['fullname','username', 'total_completed'])
-#     for user in completed:
-#         print(user)
-#         writer.writerow([user['name'], user['username'], user['total_completed']])
-#         users.append(username)
-    
-
-# from pprint import pprint
+with open(f'group/{group}.csv', 'r') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        users.append({
+            'username': row['username'],
+            'fullname': row['fullname']
+        })
+        
 # print(users)
-# grpup = Users(users)
-# completed = grpup.get_total_completed()
-# print(completed)
-# # Convert to CSV
-# with open('results.csv', 'w', newline='') as csv_file:
-#     writer = csv.writer(csv_file)
-#     writer.writerow(['username', 'total_completed'])
-#     for user in completed:
-#         print(user)
-#         writer.writerow([user['username'], user['total_completed']])
+users = Users(users)
+
+daily=users.get_total_daily()
+dict_to_csv(daily,f'{group}_daily.csv')
+
+weekly = users.get_total_weekly()
+dict_to_csv(weekly,f'{group}_weekly.csv')
+
+
