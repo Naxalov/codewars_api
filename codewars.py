@@ -14,11 +14,11 @@ class Users:
     }
     """
     def __init__(self,users:list):
-        self.users = users
-        # for user in users:
-        #     user_obj = User(user['username'],user['fullname'])
-        #     print(f"{user['fullname']} added")
-        #     self.users.append(user_obj)
+        self.users = []
+        for user in users:
+            user_obj = User(user['username'],user['fullname'])
+            # print(f"{user['fullname']} added")
+            self.users.append(user_obj)
 
     def add_user(self,username):
         """
@@ -57,14 +57,13 @@ class Users:
             'total_completed':0,
         }
         result = []
+        # print(self.users)
         for user in self.users:
-            username = user['username']
-            fullname = user['fullname']
-            get_user = User(username, fullname)
+            # print(user)
             user_data={
-                'name':user['fullname'],
-                'username':user['username'],
-                'total_completed':get_user.get_daily()
+                'name':user.fullname,
+                'username':user.username,
+                'total_completed':user.get_daily()
             }
             result.append(user_data)
         result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
@@ -81,13 +80,10 @@ class Users:
         }
         result = []
         for user in self.users:
-            username = user['username']
-            fullname = user['fullname']
-            get_user = User(username, fullname)
             user_data={
-                'name':user['fullname'],
-                'username':user['username'],
-                'total_completed':get_user.get_weekly()
+                'name':user.fullname,
+                'username':user.username,
+                'total_completed':user.get_weekly()
             }
             result.append(user_data)
         result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
@@ -104,13 +100,10 @@ class Users:
         }
         result = []
         for user in self.users:
-            username = user['username']
-            fullname = user['fullname']
-            get_user = User(username, fullname)
             user_data={
-                'name':user['fullname'],
-                'username':user['username'],
-                'total_completed':get_user.get_monthly()
+                'name':user.fullname,
+                'username':user.username,
+                'total_completed':user.get_monthly()
             }
             result.append(user_data)
         result = sorted(result,key=lambda x:x['total_completed'],reverse=True)
@@ -262,22 +255,6 @@ class User:
                 total += 1
         return total  
     
-    def get_monthly(self):
-        """
-        Get number of completed kata last month
-
-        returns(int): number of completed kata
-        """
-        monthly_date = datetime.now().date() - timedelta(days=datetime.now().month())
-        data = self.completed['data']
-        total = 0 # Total number of completed kata in current month
-        for item in data:        
-            completed_at = datetime.fromisoformat(item['completedAt'])
-            # Check if completed date is in current month
-            if monthly_date <= completed_at.date() <= monthly_date + timedelta(days=30):
-                total+=1
-        
-        return total
 
     def get_daily(self):
         """
@@ -299,24 +276,41 @@ class User:
           
         return total
     def get_weekly(self):
-            """
-            Get number of completed kata last week
+        """
+        Get number of completed kata last week
 
-            returns(int): number of completed kata
-            """
-            # Get current week date
-            week_date = datetime.now().date() - timedelta(days=datetime.now().weekday())
+        returns(int): number of completed kata
+        """
+        # Get current week date
+        week_date = datetime.now().date() - timedelta(days=datetime.now().weekday())
 
-            data = self.completed['data']
-            total = 0 # Total number of completed kata in current week
-            for item in data:        
-                completed_at = datetime.fromisoformat(item['completedAt'])
-                # Check if completed date is in current week
-                if week_date <= completed_at.date() <= week_date + timedelta(days=7):
-                    total+=1
-           
-            return total
+        data = self.completed['data']
+        total = 0 # Total number of completed kata in current week
+        for item in data:        
+            completed_at = datetime.fromisoformat(item['completedAt'])
+            # Check if completed date is in current week
+            if week_date <= completed_at.date() <= week_date + timedelta(days=7):
+                total+=1
+        
+        return total
+    
+    def get_monthly(self):
+        """
+        Get number of completed kata last month
 
+        returns(int): number of completed kata
+        """
+        monthly_date = datetime.now().date() 
+        data = self.completed['data']
+        total = 0 # Total number of completed kata in current month
+        for item in data:        
+            completed_at = datetime.fromisoformat(item['completedAt'])
+            # Check if completed date is in current month
+            if monthly_date - timedelta(days=30) <= completed_at.date() <= monthly_date :
+                total+=1
+        
+        return total
+    
     def get_name(self):
         """
         Get username
