@@ -2,6 +2,8 @@ import requests
 import csv
 from datetime import datetime, timedelta
 from datetime import datetime, date, timedelta
+from spire.doc import *
+from spire.doc.common import *
 
 class Users:
     """
@@ -17,7 +19,6 @@ class Users:
         self.users = []
         for user in users:
             user_obj = User(user['username'],user['fullname'])
-            # print(f"{user['fullname']} added")
             self.users.append(user_obj)
 
     def add_user(self,username):
@@ -57,9 +58,7 @@ class Users:
             'total_completed':0,
         }
         result = []
-        # print(self.users)
         for user in self.users:
-            # print(user)
             user_data={
                 'name':user.fullname,
                 'username':user.username,
@@ -112,33 +111,27 @@ class Users:
         """
         This method returns the total number of completed for all users by date type (daily, weekly, monthly)
         """        
-        user_data ={
-        'username': '',
-        'fullname': '',
-        'total_completed': 0
-        }
+        
         result_users = []
         for user in self.users:
-            username = user['username']
-            fullname = user['fullname']
-            user_data = User(username, fullname)
-            
             total = 0
             if date_type == 'daily':
-                total = user_data.get_daily()
+                total = user.get_daily()
 
             elif date_type == 'weekly':
-                total = user_data.get_weekly()
+                total = user.get_weekly()
 
             elif date_type == 'monthly':
-                total = user_data.get_monthly()
-
+                total = user.get_monthly()
+            else:
+                total = user.get_total()
             user_data = {
-                "username": user['username'],
-                "fullname": user['fullname'],
+                "username": user.username,
+                "fullname": user.fullname,
                 "total_completed": total
             }      
             result_users.append(user_data)
+        result_users = sorted(result_users,key=lambda x:x['total_completed'],reverse=True)
         return result_users
     
     def get_total_completed(self):
@@ -177,6 +170,62 @@ class Users:
                 user = User(username)
                 writer.writerow([id+1, username, user.get_total()])
         return 'OK'
+    
+    def get_users_html_convert(self, user_data: list, result_image_path: str, type_completeAt: str):
+        results = """"""
+        for idx,user in enumerate(user_data):
+            results += f"""
+                <tr>
+                    <td>{"🥇 "+user['fullname'].title() if idx==0 else "🥈 "+user['fullname'].title() if idx==1 else "🥉 "+user['fullname'].title() if idx==2 else str(idx+1)+'. '+user['fullname'].title()}</td>
+                    <td>{user['total_completed']}</td>
+                </tr>
+                """
+        html_file_str = f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Codewars CompleteAt users</title>
+            <link rel="stylesheet" href="style.css">
+        </head>
+        <body>
+            <div>
+                <table>
+                    <h1>IT Markazda codewars natijalari({type_completeAt})</h1>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Total Completed</th>
+                    </tr>
+                    {results}
+                </table>
+            </div>
+        </body>
+        </html>
+            
+        """
+        
+        with open("index.html", "w", encoding="utf-8") as file_html:
+            file_html.write(html_file_str)
+            file_html.close()
+        
+        # Create a Document object
+        document = Document()
+
+        # Load an HTML file 
+        document.LoadFromFile("index.html", FileFormat.Html, XHTMLValidationType.none)
+
+        # Save the first page as an image stream
+        imageStream = document.SaveImageToStreams(0, ImageType.Bitmap)
+
+        # Convert the image stream as a PNG file
+        with open(result_image_path,'wb') as imageFile:
+            imageFile.write(imageStream.ToArray())
+            document.Close()
+        return 'OK'
+
+
+
 
 class User:
     """
@@ -263,12 +312,9 @@ class User:
         returns(int): number of completed kata
         """
         today = date.today()
-       
-      
         total = 0
         data = self.completed['data']
         for item in data:        
-            # 2024, 8, 2
             completed_at =datetime.strptime(item['completedAt'], "%Y-%m-%dT%H:%M:%S.%fZ")
             # Compare dates
             if today == completed_at.date():
@@ -300,13 +346,13 @@ class User:
 
         returns(int): number of completed kata
         """
-        monthly_date = datetime.now().date() 
+        monthly_date = datetime.now().date() - timedelta(days=datetime.now().day)
         data = self.completed['data']
         total = 0 # Total number of completed kata in current month
         for item in data:        
             completed_at = datetime.fromisoformat(item['completedAt'])
             # Check if completed date is in current month
-            if monthly_date - timedelta(days=30) <= completed_at.date() <= monthly_date :
+            if monthly_date  <= completed_at.date() <= monthly_date +  timedelta(days=30):
                 total+=1
         
         return total

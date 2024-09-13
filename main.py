@@ -32,5 +32,5 @@ users = Users(users)
 # weekly = users.get_total_weekly()
 # dict_to_csv(weekly,f'{group}_weekly.csv')
 
-mothly = users.get_total_monthly()
-dict_to_csv(mothly,f'{group}_monthly.csv')
+mothly = users.get_total_daily()
+dict_to_csv(mothly,f'{group}_daily.csv')
