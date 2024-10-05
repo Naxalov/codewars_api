@@ -1,11 +1,36 @@
-from codewars import User
-import requests
-user = User('abdumajid_1')
+from codewars import User, Users
+from pprint import pprint
+import csv
 
-# Get total completed kata
-# print(user.get_name())
-# print(user.get_clan())
-# print(user.get_totalcomplated())
-# print(user.get_rank())
-print(user.codewars_check_completedAt(day=19, month=7, year=2024))
+# Convert dict to CSV file
+def dict_to_csv(data, path):
+    with open(path, 'w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
 
+# users = []
+# Read data from csv file
+group ='python_2'
+users = []
+
+with open(f'group/{group}.csv', 'r') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        users.append({
+            'username': row['username'],
+            'fullname': row['fullname']
+        })
+
+
+users = Users(users)
+
+# daily=users.get_total_daily()
+# print(daily)
+# dict_to_csv(daily,f'{group}_daily.csv')
+
+# weekly = users.get_total_weekly()
+# dict_to_csv(weekly,f'{group}_weekly.csv')
+
+mothly = users.get_total_daily()
+dict_to_csv(mothly,f'{group}_daily.csv')
