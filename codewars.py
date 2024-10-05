@@ -11,7 +11,7 @@ class User:
         data_pages = requests.get(url=url_completed).json()
         pages = data_pages['totalPages']
         self.pages = pages
-        
+
     def check_username(self):
         if self.data.get('username')!=None:
             return True
