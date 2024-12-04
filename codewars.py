@@ -329,7 +329,7 @@ class User:
         data = self.completed['data']
         total = 0 # Total number of completed kata in current week
         for item in data:        
-            completed_at = datetime.fromisoformat(item['completedAt'])
+            completed_at =datetime.strptime(item['completedAt'], "%Y-%m-%dT%H:%M:%S.%fZ")
             # Check if completed date is in current week
             if week_date <= completed_at.date() <= week_date + timedelta(days=7):
                 total+=1
@@ -346,7 +346,7 @@ class User:
         data = self.completed['data']
         total = 0 # Total number of completed kata in current month
         for item in data:        
-            completed_at = datetime.fromisoformat(item['completedAt'])
+            completed_at =datetime.strptime(item['completedAt'], "%Y-%m-%dT%H:%M:%S.%fZ")
             # Check if completed date is in current month
             if monthly_date  <= completed_at.date() <= monthly_date +  timedelta(days=30):
                 total+=1
