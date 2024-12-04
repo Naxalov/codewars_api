@@ -19,7 +19,7 @@ async def results_type(update: Update, context: CallbackContext):
 
 async def send_results_to_image(update: Update, context: CallbackContext) -> None:
     type_completeat = update.callback_query.data.split(":")[1]
-    group ='codewars'
+    group ='pyFoundation24'
     users_data = []
     with open(f'group/{group}.csv', 'r') as file:
         reader = csv.DictReader(file)
