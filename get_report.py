@@ -43,9 +43,17 @@ def daily_completed_task_histogram(data):
         # Increase the count for that day, that hour
         # Note that our defaultdict is a fresh [0]*24 for each new day
         histograms[day_str][hour_of_day] += 1
+
+        # Convert the defaultdict back to a regular dictionary
+    histograms = dict(histograms)
+
+    return histograms
+
+
+
+
+
     
-    # Convert defaultdict to a normal dict before returning
-    return dict(histograms)
 """
 id,fullname,username
 1,Ahror Hasanov,Akhror_Khasanov
@@ -57,8 +65,9 @@ id,fullname,username
 """
 
 # Example usage
-user = User('Akhror_Khasanov', 'Akhror_Khasanov')
+user = User('elmurodov', 'Akhror_Khasanov')
 data = user.get_completed()['data']
 
 histogram = daily_completed_task_histogram(data)
+from pprint import pprint
 print(histogram)
