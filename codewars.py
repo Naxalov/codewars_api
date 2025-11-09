@@ -1,3 +1,4 @@
+from collections import defaultdict
 import requests
 import csv
 from datetime import datetime, date, timedelta
@@ -14,11 +15,17 @@ class Users:
     }
     """
 
-    def __init__(self, users: list):
-        self.users = []
+    def __init__(self, users: list[str]) -> None:
+        self.users: list[User] = []
+        self.count: int = 0
         for user in users:
-            user_obj = User(user["username"], user["fullname"])
+            try:
+                user_obj = User(user["username"], user["fullname"])
+            except Exception as e:
+                print(f"Error adding user {user['username']}: {e}")
+                continue
             print(f"{user['fullname']} added")
+            self.count += 1
             self.users.append(user_obj)
 
     def add_user(self, username):
@@ -34,33 +41,22 @@ class Users:
         self.users.append(user)
         return len(self.users)
 
-    def get_num_users(self):
-        """
-        This method returns the total number of users
-
-        returns:
-            total(int): total number of users
-        """
-        user_count = {"users_count": 0}
-        for user in self.users:
-            user_count["users_count"] += 1
-        return user_count
-
     def get_total_daily(self):
         """
         This method returns the total number of completed for all users by daily
-        """
+
         user = {
             "username": "",
             "name": "",
             "total_completed": 0,
         }
+        """
         result = []
         for user in self.users:
             user = {
                 "name": user.fullname,
                 "username": user.username,
-                "total_completed": user.get_daily(),
+                "daily_completed": user.get_daily(),
             }
             result.append(user)
         result = sorted(result, key=lambda x: x["total_completed"], reverse=True)
@@ -69,18 +65,19 @@ class Users:
     def get_total_weekly(self):
         """
         This method returns the total number of completed for all users by weekly
-        """
+
         user = {
             "username": "",
             "name": "",
             "total_completed": 0,
         }
+        """
         result = []
         for user in self.users:
             user = {
                 "name": user.fullname,
                 "username": user.username,
-                "total_completed": user.get_weekly(),
+                "weekly_completed": user.get_weekly(),
             }
             result.append(user)
         result = sorted(result, key=lambda x: x["total_completed"], reverse=True)
@@ -90,49 +87,25 @@ class Users:
         """
         This method returns the total number of completed for all users by date type (daily, weekly, monthly)
         """
-
-        now = datetime.now()
-
-        user_data = {"username": "", "fullname": "", "total_completed": 0}
-        result_users = []
+        result = []
         for user in self.users:
-            url_pages = f"https://www.codewars.com/api/v1/users/{user['username']}/code-challenges/completed"
-            data_Com = requests.get(url=url_pages).json()
-            count = 0
             if date_type == "daily":
-                day, month, year = now.day, now.month, now.year
-                for item in data_Com["data"]:
-                    date_old = datetime.fromisoformat(item["completedAt"])
-                    day_at, month_at, year_at = (
-                        date_old.day,
-                        date_old.month,
-                        date_old.year,
-                    )
-                    if day_at == day and month_at == month and year_at == year:
-                        count += 1
-
+                completed = user.get_daily()
             elif date_type == "weekly":
-                now_second = now.timestamp()
-                for item in data_Com["data"]:
-                    date_old = datetime.fromisoformat(item["completedAt"])
-                    date_old_second = date_old.timestamp()
-                    if abs(now_second - date_old_second) <= 7 * 24 * 3600:
-                        count += 1
-
+                completed = user.get_weekly()
             elif date_type == "monthly":
-                now_second = now.timestamp()
-                for item in data_Com["data"]:
-                    date_old = datetime.fromisoformat(item["completedAt"])
-                    date_old_second = date_old.timestamp()
-                    if abs(now_second - date_old_second) <= 30 * 24 * 3600:
-                        count += 1
+                completed = user.get_monthly()
+            else:
+                raise ValueError("Invalid date type. Must be 'daily', 'weekly', or 'monthly'.")
+
             user_data = {
-                "username": user["username"],
-                "fullname": user["fullname"],
-                "total_completed": count,
+                "name": user.fullname,
+                "username": user.username,
+                f"{date_type}_completed": completed,
             }
-            result_users.append(user_data)
-        return result_users
+            result.append(user_data)
+        result = sorted(result, key=lambda x: x[f"{date_type}_completed"], reverse=True)
+        return result
 
     def get_total_completed(self):
         """
@@ -157,12 +130,46 @@ class Users:
         result = sorted(result, key=lambda x: x["total_completed"], reverse=True)
         return result
 
-    def export_total_completed_to_csv(self):
+    def get_total_daily_completed_histogram(self):
+        """
+        This method returns the total number of completed for all users by daily histogram
+
+        returns:
+            result(list[dict]): total number of completed for all users by daily histogram
+        """
+        result = []
+        for user in self.users:
+            histogram = user.daily_completed_task_histogram()
+            user_data = {
+                "username": user.username,
+                "daily_histogram": histogram,
+            }
+            result.append(user_data)
+        return result
+
+    def export_total_count_solved_katas(self, kata_ids: list[str], file_path: str = "output/codewars_katas.csv") -> int:
+        """
+        This method returns the total number of solved katas for all users
+
+        args:
+            kata_ids(list[str]): list of kata ids
+        returns:
+            total(int): total number of solved katas
+        """
+        with open(file_path, mode="w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["id", "Username", "Solved Katas"])
+            for id, username in enumerate(self.users):
+                user = User(username)
+                writer.writerow([id + 1, username, user.count_solved_katas(kata_ids)])
+        return "OK"
+
+    def export_total_completed_to_csv(self, file_path: str = "output/codewars_total.csv") -> str:
         """
         This method exports the total number of completed for all users to a csv file
         """
 
-        with open("codewars_total.csv", mode="w", newline="") as file:
+        with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["id", "Username", "Completed Tasks"])
             for id, username in enumerate(self.users):
@@ -170,21 +177,59 @@ class Users:
                 writer.writerow([id + 1, username, user.get_total()])
         return "OK"
 
+    def export_total_daily_completed_histogram_to_csv(self, file_path: str = "output/codewars_daily_histogram.csv") -> str:
+        """
+        This method exports the total number of completed for all users by daily histogram to a csv file
+        """
+
+        all_data = {}
+        for user in self.users:
+            histogram = User(user.username).daily_completed_task_histogram()
+            for day, count in histogram.items():
+                if day not in all_data:
+                    all_data[day] = {}
+                all_data[day][user.username] = count
+
+        # Write combined data
+        with open(file_path, mode="w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Date"] + [user.username for user in self.users])
+            for day in sorted(all_data.keys()):
+                row = [day] + [all_data[day].get(user.username, 0) for user in self.users]
+                writer.writerow(row)
+        return "OK"
 
 class User:
     """
     User class
     """
 
-    def __init__(self, username, base_url="https://www.codewars.com/api/v1/users/"):
+    def __init__(self, username: str, full_name: str = None, base_url: str ="https://www.codewars.com/api/v1/users/") -> None:
+        self.username = username
+        self.fullname = full_name
+        
         self.base_url = base_url
         self.data, self.full_url = self.get_user_data(username)
 
         self.set_fullname()
-        self.set_username()
 
         self.completed = self.get_all_completed()
         self.total_pages = 0
+
+    def count_solved_katas(self, kata_ids: list[str]) -> int:
+        """
+        Check if a katas is solved by the user.
+
+        Args:
+            kata_ids (list[str]): The IDs of the katas to check.
+        Returns:
+            int: Number of solved katas.
+        """
+        completed_katas = {}
+        for item in self.completed["data"]:
+            completed_katas[item["id"]] = True
+
+        return sum(completed_katas.values())
 
     def get_user_data(self, username=None) -> tuple:
         """
@@ -234,18 +279,9 @@ class User:
         args:
             fullname(str): fullname
         """
-        fullname = self.data.get("name")
-        self.fullname = fullname
-
-    def set_username(self) -> None:
-        """
-        Set username from API data
-
-        raises:
-            ValueError: if username is not valid
-        """
-        username = self.data.get("username")
-        self.username = username
+        if self.fullname is None:
+            fullname = self.data.get("name")
+            self.fullname = fullname
 
     def get_total(self) -> int:
         """
@@ -361,3 +397,38 @@ class User:
         returns(list): list of porgramming languages
         """
         return self.data.get("skills")
+
+    def daily_completed_task_histogram(self):
+        """
+        Given a list of task dictionaries (each having a 'completedAt' field),
+        return a histogram of completed tasks grouped by day (YYYY-MM-DD) and
+        by hour (0-23).
+        
+        :param data: list of dictionaries, each with at least a 'completedAt' field
+                    in ISO 8601 format (e.g., '2025-01-08T06:09:32.508Z')
+        :return: A dictionary where:
+                - keys:   'YYYY-MM-DD' strings
+                - values: a list of 24 integers [count_0, count_1, ... count_23]
+        """
+        # This dictionary will map day_string -> [24-hour histogram].
+        # For example: histograms["2025-01-08"] = 0
+        histograms = defaultdict(0)
+        
+        for task in self.completed["data"]:
+            completed_at_str = task.get('completedAt')
+            if not completed_at_str:
+                continue
+            
+            # Parse the completedAt string into a datetime object
+            # Example "completedAt": "2025-01-08T06:09:32.508Z"
+            completed_dt = datetime.fromisoformat(completed_at_str)
+            # Create a day string in "YYYY-MM-DD" format
+            day_str = completed_dt.date().isoformat()
+            
+            # Increase the count for that day
+            histograms[day_str] += 1
+
+            # Convert the defaultdict back to a regular dictionary
+        histograms = dict(histograms)
+
+        return histograms
