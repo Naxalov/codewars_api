@@ -49,6 +49,7 @@ class Users:
         kata_ids = []
         with open(file_path, mode="r") as file:
             reader = csv.reader(file)
+            next(reader)  # Skip header row
             for row in reader:
                 kata_ids.append(row[0])
         self.kata_ids = kata_ids
@@ -190,7 +191,8 @@ class Users:
 
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["id", "Username", "Solved Katas"] +self.kata_ids)
+            writer.writerow(["id", "Username", "Solved Katas"] + self.kata_ids)
+            self.users.sort(key=lambda u: u.count_solved_katas_by_given_ids(self.kata_ids), reverse=True)
             for id, user in enumerate(self.users):
                 my_list = user.count_solved_katas_by_given_ids_list(self.kata_ids)
                 writer.writerow([id + 1, user.fullname, sum(my_list)] + my_list)
@@ -260,6 +262,20 @@ class User:
 
         # Get all completed kata
         self.completed = self.get_all_completed()
+
+    def count_solved_katas_by_given_ids(self, kata_ids: list[str]) -> int:
+        """
+        Count number of solved katas by given ids
+        args:
+            kata_ids(list[str]): list of kata ids
+        returns(int): number of solved katas
+        """
+        count = 0
+        data_problems = self.completed["data"]
+        for item in data_problems:
+            if item["id"] in kata_ids:
+                count += 1
+        return count
 
     def count_solved_katas_by_given_ids_list(self, kata_ids: list[str]) -> list[int]:
         """
