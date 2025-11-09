@@ -96,7 +96,9 @@ class Users:
             elif date_type == "monthly":
                 completed = user.get_monthly()
             else:
-                raise ValueError("Invalid date type. Must be 'daily', 'weekly', or 'monthly'.")
+                raise ValueError(
+                    "Invalid date type. Must be 'daily', 'weekly', or 'monthly'."
+                )
 
             user_data = {
                 "name": user.fullname,
@@ -147,7 +149,9 @@ class Users:
             result.append(user_data)
         return result
 
-    def export_total_count_solved_katas(self, kata_ids: list[str], file_path: str = "output/codewars_katas.csv") -> int:
+    def export_total_count_solved_katas_by_given_id(
+        self, kata_ids: list[str], file_path: str = "output/codewars_katas.csv"
+    ) -> int:
         """
         This method returns the total number of solved katas for all users
 
@@ -164,7 +168,9 @@ class Users:
                 writer.writerow([id + 1, username, user.count_solved_katas(kata_ids)])
         return "OK"
 
-    def export_total_completed_to_csv(self, file_path: str = "output/codewars_total.csv") -> str:
+    def export_total_completed_to_csv(
+        self, file_path: str = "output/codewars_total.csv"
+    ) -> str:
         """
         This method exports the total number of completed for all users to a csv file
         """
@@ -177,7 +183,9 @@ class Users:
                 writer.writerow([id + 1, username, user.get_total()])
         return "OK"
 
-    def export_total_daily_completed_histogram_to_csv(self, file_path: str = "output/codewars_daily_histogram.csv") -> str:
+    def export_total_daily_completed_histogram_to_csv(
+        self, file_path: str = "output/codewars_daily_histogram.csv"
+    ) -> str:
         """
         This method exports the total number of completed for all users by daily histogram to a csv file
         """
@@ -195,43 +203,53 @@ class Users:
             writer = csv.writer(file)
             writer.writerow(["Date"] + [user.username for user in self.users])
             for day in sorted(all_data.keys()):
-                row = [day] + [all_data[day].get(user.username, 0) for user in self.users]
+                row = [day] + [
+                    all_data[day].get(user.username, 0) for user in self.users
+                ]
                 writer.writerow(row)
         return "OK"
+
 
 class User:
     """
     User class
     """
 
-    def __init__(self, username: str, full_name: str = None, base_url: str ="https://www.codewars.com/api/v1/users/") -> None:
+    def __init__(
+        self,
+        username: str,
+        full_name: str = None,
+        base_url: str = "https://www.codewars.com/api/v1/users/",
+    ) -> None:
         self.username = username
         self.fullname = full_name
-        
-        self.base_url = base_url
-        self.data, self.full_url = self.get_user_data(username)
 
+        self.base_url = base_url
+        # Get user data from API and full URL that has username
+        self.data, self.full_url = self.get_user_data()
+
+        # Set fullname if not provided
         self.set_fullname()
 
+        # Get all completed kata
         self.completed = self.get_all_completed()
-        self.total_pages = 0
 
-    def count_solved_katas(self, kata_ids: list[str]) -> int:
+    def count_solved_katas_by_given_ids(self, kata_ids: list[str]) -> int:
         """
-        Check if a katas is solved by the user.
+        Count number of solved katas by given ids
 
-        Args:
-            kata_ids (list[str]): The IDs of the katas to check.
-        Returns:
-            int: Number of solved katas.
+        args:
+            kata_ids(list[str]): list of kata ids
+        returns(int): number of solved katas
         """
-        completed_katas = {}
-        for item in self.completed["data"]:
-            completed_katas[item["id"]] = True
+        count = 0
+        data_problems = self.completed["data"]
+        for item in data_problems:
+            if item["id"] in kata_ids:
+                count += 1
+        return count
 
-        return sum(completed_katas.values())
-
-    def get_user_data(self, username=None) -> tuple:
+    def get_user_data(self) -> tuple:
         """
         Get user data from the Codewars API.
         Args:
@@ -243,15 +261,15 @@ class User:
         Raises:
             ValueError: If the username is not found (status code != 200)
         """
-        full_url = f"{self.base_url}{username}"
+        full_url = f"{self.base_url}{self.username}"
         r = requests.get(url=full_url)
         if r.status_code != 200:
-            raise ValueError(f"Username {username} not found")
+            raise ValueError(f"Username {self.username} not found")
 
         data = r.json()
         return data, full_url
 
-    def get_all_completed(self) -> None:
+    def get_all_completed(self) -> dict:
         """
         Get number of completed kata
 
@@ -270,7 +288,7 @@ class User:
             data_page = r_page.json()
             data["data"].extend(data_page["data"])
 
-        self.all_data = data
+        return data
 
     def set_fullname(self) -> None:
         """
@@ -293,16 +311,17 @@ class User:
             return self.data["codeChallenges"]["totalCompleted"]
         return False
 
-    def get_completed_by_date(self, date) -> int:
+    def get_completed_by_date(self, date_str: str) -> int:
         """
         Get number of completed kata by date
 
         args:
-            date(str): date
+            date(str): date in format "year-month-day" (e.g., "2024-08-02")
         returns(int): number of completed kata
         """
-        day, month, year = date
-        data_problems = self.all_data["data"]
+        date = datetime.strptime(date_str, "%Y-%m-%d")
+        day, month, year = date.day, date.month, date.year
+        data_problems = self.completed["data"]
         count = 0
         for item in data_problems:
             date_old = datetime.fromisoformat(item["completedAt"])
@@ -403,7 +422,7 @@ class User:
         Given a list of task dictionaries (each having a 'completedAt' field),
         return a histogram of completed tasks grouped by day (YYYY-MM-DD) and
         by hour (0-23).
-        
+
         :param data: list of dictionaries, each with at least a 'completedAt' field
                     in ISO 8601 format (e.g., '2025-01-08T06:09:32.508Z')
         :return: A dictionary where:
@@ -412,19 +431,19 @@ class User:
         """
         # This dictionary will map day_string -> [24-hour histogram].
         # For example: histograms["2025-01-08"] = 0
-        histograms = defaultdict(0)
-        
+        histograms = defaultdict(lambda: 0)
+
         for task in self.completed["data"]:
-            completed_at_str = task.get('completedAt')
+            completed_at_str = task.get("completedAt")
             if not completed_at_str:
                 continue
-            
+
             # Parse the completedAt string into a datetime object
             # Example "completedAt": "2025-01-08T06:09:32.508Z"
             completed_dt = datetime.fromisoformat(completed_at_str)
             # Create a day string in "YYYY-MM-DD" format
             day_str = completed_dt.date().isoformat()
-            
+
             # Increase the count for that day
             histograms[day_str] += 1
 
