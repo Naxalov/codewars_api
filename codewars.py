@@ -25,7 +25,7 @@ class Users:
         CSV file should have two columns:id, username, fullname
 
         args:
-            file_path(str): path to the CSV file    
+            file_path(str): path to the CSV file
         returns:
             Users: Users object
         """
@@ -185,13 +185,15 @@ class Users:
         returns:
             str: "OK" on success
         """
-        if not hasattr(self, 'kata_ids'):
+        if not hasattr(self, "kata_ids"):
             raise ValueError("Kata IDs not set. Please add kata IDs before exporting.")
+
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["id", "Username", "Solved Katas"])
+            writer.writerow(["id", "Username", "Solved Katas"] +self.kata_ids)
             for id, user in enumerate(self.users):
-                writer.writerow([id + 1, user.username, user.count_solved_katas_by_given_ids(self.kata_ids)])
+                my_list = user.count_solved_katas_by_given_ids_list(self.kata_ids)
+                writer.writerow([id + 1, user.fullname, sum(my_list)] + my_list)
         return "OK"
 
     def export_total_completed_to_csv(
@@ -259,20 +261,23 @@ class User:
         # Get all completed kata
         self.completed = self.get_all_completed()
 
-    def count_solved_katas_by_given_ids(self, kata_ids: list[str]) -> int:
+    def count_solved_katas_by_given_ids_list(self, kata_ids: list[str]) -> list[int]:
         """
         Count number of solved katas by given ids
 
         args:
             kata_ids(list[str]): list of kata ids
-        returns(int): number of solved katas
+        returns(list[int]): list of 1/0 for each kata id
         """
-        count = 0
+        result = []
         data_problems = self.completed["data"]
-        for item in data_problems:
-            if item["id"] in kata_ids:
-                count += 1
-        return count
+        solved_ids = {item["id"] for item in data_problems}
+        for kata_id in kata_ids:
+            if kata_id in solved_ids:
+                result.append(1)
+            else:
+                result.append(0)
+        return result
 
     def get_user_data(self) -> tuple:
         """
