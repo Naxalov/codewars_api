@@ -5,16 +5,6 @@ from datetime import datetime, date, timedelta
 
 
 class Users:
-    """
-    Users class
-    user ={
-        'username': username,
-        'fullname': fullname,
-        'total_completed': total_completed
-
-    }
-    """
-
     def __init__(self, users: list[str]) -> None:
         self.users: list[User] = []
         self.count: int = 0
@@ -27,6 +17,41 @@ class Users:
             print(f"{user['fullname']} added")
             self.count += 1
             self.users.append(user_obj)
+
+    @classmethod
+    def from_csv(cls, file_path: str) -> "Users":
+        """
+        This method creates a Users object from a CSV file
+        CSV file should have two columns:id, username, fullname
+
+        args:
+            file_path(str): path to the CSV file    
+        returns:
+            Users: Users object
+        """
+        users = []
+        with open(file_path, mode="r") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                users.append({"username": row["username"], "fullname": row["fullname"]})
+        return cls(users)
+
+    def add_kata_ids_by_file(self, file_path: str = "input/kata_ids.csv") -> None:
+        """
+        This method adds kata ids from a CSV file
+        CSV file should have one column: kata_id
+
+        args:
+            file_path(str): path to the CSV file
+        returns:
+            kata_ids(list[str]): list of kata ids
+        """
+        kata_ids = []
+        with open(file_path, mode="r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                kata_ids.append(row[0])
+        self.kata_ids = kata_ids
 
     def add_user(self, username):
         """
@@ -122,13 +147,13 @@ class Users:
             "name": "",
         }
         result = []
-        for username in self.users:
-            user = User(username)
-            user = {
-                "username": username,
-                "total_completed": user.get_total(),
+        for user_obj in self.users:
+            user_dict = {
+                "username": user_obj.username,
+                "total_completed": user_obj.get_total(),
+                "name": user_obj.fullname,
             }
-            result.append(user)
+            result.append(user_dict)
         result = sorted(result, key=lambda x: x["total_completed"], reverse=True)
         return result
 
@@ -149,23 +174,24 @@ class Users:
             result.append(user_data)
         return result
 
-    def export_total_count_solved_katas_by_given_id(
-        self, kata_ids: list[str], file_path: str = "output/codewars_katas.csv"
-    ) -> int:
+    def export_solved_katas_count_to_csv(
+        self, file_path: str = "output/codewars_katas.csv"
+    ) -> str:
         """
-        This method returns the total number of solved katas for all users
+        This method exports the count of solved katas (filtered by kata_ids) for all users to a CSV file
 
         args:
-            kata_ids(list[str]): list of kata ids
+            file_path(str): path to the output CSV file
         returns:
-            total(int): total number of solved katas
+            str: "OK" on success
         """
+        if not hasattr(self, 'kata_ids'):
+            raise ValueError("Kata IDs not set. Please add kata IDs before exporting.")
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["id", "Username", "Solved Katas"])
-            for id, username in enumerate(self.users):
-                user = User(username)
-                writer.writerow([id + 1, username, user.count_solved_katas(kata_ids)])
+            for id, user in enumerate(self.users):
+                writer.writerow([id + 1, user.username, user.count_solved_katas_by_given_ids(self.kata_ids)])
         return "OK"
 
     def export_total_completed_to_csv(
@@ -178,9 +204,8 @@ class Users:
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["id", "Username", "Completed Tasks"])
-            for id, username in enumerate(self.users):
-                user = User(username)
-                writer.writerow([id + 1, username, user.get_total()])
+            for id, user in enumerate(self.users):
+                writer.writerow([id + 1, user.username, user.get_total()])
         return "OK"
 
     def export_total_daily_completed_histogram_to_csv(

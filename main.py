@@ -1,10 +1,9 @@
-from codewars import User, Users
-from pprint import pprint
-import csv
+from codewars import Users
 
-user = User("Sanjar1218")
+# Read usernames from a CSV file
+users = Users.from_csv("input/upwork.csv")
+# list of kata IDs to check
+users.add_kata_ids_by_file("input/kata_ids.csv")
 
-
-
-print(user.fullname)
-print("Full Name:", user.get_fullname())
+# Export the count of solved katas for all users to a CSV file
+users.export_solved_katas_count_to_csv()
