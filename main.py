@@ -1,36 +1,9 @@
-from codewars import User, Users
-from pprint import pprint
-import csv
+from codewars import Users
 
-# Convert dict to CSV file
-def dict_to_csv(data, path):
-    with open(path, 'w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=data[0].keys())
-        writer.writeheader()
-        writer.writerows(data)
+# Read usernames from a CSV file
+users = Users.from_csv("input/upwork.csv")
+# list of kata IDs to check
+users.add_kata_ids_by_file("input/kata_ids.csv")
 
-# users = []
-# Read data from csv file
-group ='python_2'
-users = [
-
-]
-
-with open(f'group/{group}.csv', 'r') as file:
-    reader = csv.DictReader(file)
-    for row in reader:
-        users.append({
-            'username': row['username'],
-            'fullname': row['fullname']
-        })
-        
-# print(users)
-users = Users(users)
-
-daily=users.get_total_daily()
-dict_to_csv(daily,f'{group}_daily.csv')
-
-weekly = users.get_total_weekly()
-dict_to_csv(weekly,f'{group}_weekly.csv')
-
-
+# Export the count of solved katas for all users to a CSV file
+users.export_solved_katas_count_to_csv()
