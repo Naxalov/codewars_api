@@ -46,12 +46,23 @@ class Users:
         returns:
             kata_ids(list[str]): list of kata ids
         """
+        kata_names = []
         kata_ids = []
         with open(file_path, mode="r") as file:
             reader = csv.reader(file)
-            next(reader)  # Skip header row
+            first_row = next(reader, None)
+
+            # Check if first row is a header
+            if not first_row and first_row[0].lower() != "names" and first_row[1].lower() != "kata_ids":
+                raise ValueError("CSV file should contain header with 'names' and 'kata_ids'")
+
             for row in reader:
-                kata_ids.append(row[0])
+                if len(row) < 2:
+                    continue
+                kata_names.append(row[0])
+                kata_ids.append(row[1])
+
+        self.names = kata_names
         self.kata_ids = kata_ids
 
     def add_user(self, username):
@@ -197,7 +208,7 @@ class Users:
                 my_list = user.count_solved_katas_by_given_ids_list(self.kata_ids)
                 writer.writerow([id + 1, user.fullname, sum(my_list)] + my_list)
         return "OK"
-    
+
     def get_kata_ids_as_urls(self) -> list[str]:
         """
         This method converts the kata IDs to their corresponding URLs.
@@ -206,7 +217,7 @@ class Users:
             list[str]: list of kata URLs
         """
         base_url = "https://www.codewars.com/kata/"
-        kata_urls = [f"{base_url}{kata_id}" for kata_id in self.kata_ids]
+        kata_urls = [f'=HYPERLINK("{base_url}{kata_id}"; "{name}")' for name, kata_id in zip(self.names, self.kata_ids)]
         return kata_urls
 
     def export_total_completed_to_csv(
