@@ -191,12 +191,23 @@ class Users:
 
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["id", "Username", "Solved Katas"] + self.kata_ids)
+            writer.writerow(["id", "Username", "Solved Katas"] + self.get_kata_ids_as_urls())
             self.users.sort(key=lambda u: u.count_solved_katas_by_given_ids(self.kata_ids), reverse=True)
             for id, user in enumerate(self.users):
                 my_list = user.count_solved_katas_by_given_ids_list(self.kata_ids)
                 writer.writerow([id + 1, user.fullname, sum(my_list)] + my_list)
         return "OK"
+    
+    def get_kata_ids_as_urls(self) -> list[str]:
+        """
+        This method converts the kata IDs to their corresponding URLs.
+
+        returns:
+            list[str]: list of kata URLs
+        """
+        base_url = "https://www.codewars.com/kata/"
+        kata_urls = [f"{base_url}{kata_id}" for kata_id in self.kata_ids]
+        return kata_urls
 
     def export_total_completed_to_csv(
         self, file_path: str = "output/codewars_total.csv"
