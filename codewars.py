@@ -50,15 +50,8 @@ class Users:
         kata_ids = []
         with open(file_path, mode="r") as file:
             reader = csv.reader(file)
-            first_row = next(reader, None)
-
-            # Check if first row is a header with expected values
-            if not first_row or len(first_row) < 2 or first_row[0].lower() != "names" or first_row[1].lower() != "kata_ids":
-                raise ValueError("Kata IDs file must contain a header row with 'names' and 'kata_ids' columns.")
-
+            next(reader, None)
             for row in reader:
-                if len(row) < 2:
-                    continue
                 kata_names.append(row[0])
                 kata_ids.append(row[1])
 
@@ -187,7 +180,7 @@ class Users:
         return result
 
     def export_solved_katas_count_to_csv(
-        self, file_path: str = "output/codewars_katas.csv"
+        self, back_days=0, file_path: str = "output/codewars_katas.csv"
     ) -> str:
         """
         This method exports the count of solved katas (filtered by kata_ids) for all users to a CSV file
@@ -202,10 +195,18 @@ class Users:
 
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["id", "Username", "Solved Katas"] + self.get_kata_ids_as_urls())
-            self.users.sort(key=lambda u: u.count_solved_katas_by_given_ids(self.kata_ids), reverse=True)
+            writer.writerow(
+                ["id", "Username", "Solved Katas"] + self.get_kata_ids_as_urls()
+            )
+            # Sort users by number of solved katas in descending order
+            self.users.sort(
+                key=lambda u: u.count_solved_katas_by_given_ids(self.kata_ids),
+                reverse=True,
+            )
             for id, user in enumerate(self.users):
-                my_list = user.count_solved_katas_by_given_ids_list(self.kata_ids)
+                my_list = user.count_solved_katas_by_given_ids_list(
+                    self.kata_ids, back_days=back_days
+                )
                 writer.writerow([id + 1, user.fullname, sum(my_list)] + my_list)
         return "OK"
 
@@ -217,7 +218,10 @@ class Users:
             list[str]: list of kata URLs
         """
         base_url = "https://www.codewars.com/kata/"
-        kata_urls = [f'=HYPERLINK("{base_url}{kata_id}"; "{name}")' for name, kata_id in zip(self.names, self.kata_ids)]
+        kata_urls = [
+            f'=HYPERLINK("{base_url}{kata_id}"; "{name}")'
+            for name, kata_id in zip(self.names, self.kata_ids)
+        ]
         return kata_urls
 
     def export_total_completed_to_csv(
@@ -299,7 +303,9 @@ class User:
                 count += 1
         return count
 
-    def count_solved_katas_by_given_ids_list(self, kata_ids: list[str]) -> list[int]:
+    def count_solved_katas_by_given_ids_list(
+        self, kata_ids: list[str], back_days: int = 0
+    ) -> list[int]:
         """
         Count number of solved katas by given ids
 
@@ -308,14 +314,35 @@ class User:
         returns(list[int]): list of 1/0 for each kata id
         """
         result = []
-        data_problems = self.completed["data"]
-        solved_ids = {item["id"] for item in data_problems}
+
+        if back_days > 0:
+            cutoff_date = datetime.now() - timedelta(days=back_days)
+
         for kata_id in kata_ids:
-            if kata_id in solved_ids:
+            kata = self.get_kata_by_given_id(kata_id)
+            if kata is not None and (
+                back_days == 0
+                or datetime.fromisoformat(kata["completedAt"]).replace(tzinfo=None)
+                >= cutoff_date
+            ):
                 result.append(1)
             else:
                 result.append(0)
         return result
+
+    def get_kata_by_given_id(self, kata_id: str) -> dict | None:
+        """
+        Get kata details by given id
+
+        args:
+            kata_id(str): kata id
+        returns(dict | None): kata details or None if not found
+        """
+        data_problems = self.completed["data"]
+        for item in data_problems:
+            if item["id"] == kata_id:
+                return item
+        return None
 
     def get_user_data(self) -> tuple:
         """
