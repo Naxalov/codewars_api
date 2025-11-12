@@ -52,9 +52,9 @@ class Users:
             reader = csv.reader(file)
             first_row = next(reader, None)
 
-            # Check if first row is a header
-            if not first_row and first_row[0].lower() != "names" and first_row[1].lower() != "kata_ids":
-                raise ValueError("CSV file should contain header with 'names' and 'kata_ids'")
+            # Check if first row is a header with expected values
+            if not first_row or len(first_row) < 2 or first_row[0].lower() != "names" or first_row[1].lower() != "kata_ids":
+                raise ValueError("Kata IDs file must contain a header row with 'names' and 'kata_ids' columns.")
 
             for row in reader:
                 if len(row) < 2:
