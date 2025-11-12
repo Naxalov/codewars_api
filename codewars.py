@@ -200,7 +200,7 @@ class Users:
             )
             # Sort users by number of solved katas in descending order
             self.users.sort(
-                key=lambda u: u.count_solved_katas_by_given_ids(self.kata_ids),
+                key=lambda u: u.count_solved_katas_by_given_ids(self.kata_ids, back_days=back_days),
                 reverse=True,
             )
             for id, user in enumerate(self.users):
@@ -289,7 +289,7 @@ class User:
         # Get all completed kata
         self.completed = self.get_all_completed()
 
-    def count_solved_katas_by_given_ids(self, kata_ids: list[str]) -> int:
+    def count_solved_katas_by_given_ids(self, kata_ids: list[str], back_days: int = 0) -> int:
         """
         Count number of solved katas by given ids
         args:
@@ -297,9 +297,16 @@ class User:
         returns(int): number of solved katas
         """
         count = 0
-        data_problems = self.completed["data"]
-        for item in data_problems:
-            if item["id"] in kata_ids:
+        if back_days > 0:
+            cutoff_date = datetime.now() - timedelta(days=back_days)
+
+        for kata_id in kata_ids:
+            kata = self.get_kata_by_given_id(kata_id)
+            if kata is not None and (
+                back_days == 0
+                or datetime.fromisoformat(kata["completedAt"]).replace(tzinfo=None)
+                >= cutoff_date
+            ):
                 count += 1
         return count
 
