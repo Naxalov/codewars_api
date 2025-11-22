@@ -180,19 +180,48 @@ class Users:
         return result
 
     def export_solved_katas_count_to_csv(
-        self, back_days=0, file_path: str = "output/codewars_katas.csv"
+        self, from_date: str, file_path: str = "output/codewars_katas.csv"
     ) -> str:
         """
-        This method exports the count of solved katas (filtered by kata_ids) for all users to a CSV file
+        This method exports the count of solved katas for all users to a CSV file.
+        
+        If kata_ids have been loaded (via add_kata_ids_by_file), the method exports:
+        - A detailed breakdown showing which specific katas each user solved
+        - Columns include: id, Username, Solved Katas count, and individual kata URLs
+        - Users are sorted by total solved katas in descending order
+        
+        If no kata_ids are loaded, the method exports:
+        - Basic count of completed katas for each user since the specified date
+        - Columns include: id, Username, Solved Katas count
+        - Users are sorted by completed katas count in descending order
 
         args:
-            file_path(str): path to the output CSV file
+            from_date (str): Start date for filtering completed katas in "YYYY-MM-DD" format
+            file_path (str, optional): Path to the output CSV file. Defaults to "output/codewars_katas.csv"
+            
         returns:
             str: "OK" on success
+            
+        Note:
+            - The method uses kata_ids attribute if available (set via add_kata_ids_by_file)
+            - CSV includes hyperlinks to kata URLs when kata_ids are loaded
+            - Users are automatically sorted by their performance
         """
         if not hasattr(self, "kata_ids"):
-            raise ValueError("Kata IDs not set. Please add kata IDs before exporting.")
-
+            print("No kata IDs loaded, exporting basic completed katas count.")
+            with open(file_path, mode="w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(["id", "Username", "Solved Katas"])
+                
+                self.users.sort(
+                    key=lambda u: u.get_completed_by_date(date_str=from_date),
+                    reverse=True,
+                )
+                
+                for id, user in enumerate(self.users):
+                    writer.writerow([id + 1, user.fullname, user.get_completed_by_date(date_str=from_date)])
+            return "OK"
+        print("Exporting detailed solved katas count with kata IDs.")
         with open(file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(
@@ -200,12 +229,12 @@ class Users:
             )
             # Sort users by number of solved katas in descending order
             self.users.sort(
-                key=lambda u: u.count_solved_katas_by_given_ids(self.kata_ids, back_days=back_days),
+                key=lambda u: u.count_solved_katas_by_given_ids(self.kata_ids, from_date=from_date),
                 reverse=True,
             )
             for id, user in enumerate(self.users):
                 my_list = user.count_solved_katas_by_given_ids_list(
-                    self.kata_ids, back_days=back_days
+                    self.kata_ids, from_date=from_date
                 )
                 writer.writerow([id + 1, user.fullname, sum(my_list)] + my_list)
         return "OK"
@@ -289,7 +318,7 @@ class User:
         # Get all completed kata
         self.completed = self.get_all_completed()
 
-    def count_solved_katas_by_given_ids(self, kata_ids: list[str], back_days: int = 0) -> int:
+    def count_solved_katas_by_given_ids(self, kata_ids: list[str], from_date: str = None) -> int:
         """
         Count number of solved katas by given ids
         args:
@@ -297,8 +326,13 @@ class User:
         returns(int): number of solved katas
         """
         count = 0
-        if back_days > 0:
+
+        if from_date:
+            date_obj = datetime.strptime(from_date, "%Y-%m-%d")
+            back_days = (datetime.now() - date_obj).days
             cutoff_date = datetime.now() - timedelta(days=back_days)
+        else:
+            back_days = 0
 
         for kata_id in kata_ids:
             kata = self.get_kata_by_given_id(kata_id)
@@ -311,7 +345,7 @@ class User:
         return count
 
     def count_solved_katas_by_given_ids_list(
-        self, kata_ids: list[str], back_days: int = 0
+        self, kata_ids: list[str], from_date: str
     ) -> list[int]:
         """
         Count number of solved katas by given ids
@@ -321,6 +355,13 @@ class User:
         returns(list[int]): list of 1/0 for each kata id
         """
         result = []
+        
+        if from_date:
+            date_obj = datetime.strptime(from_date, "%Y-%m-%d")
+            back_days = (datetime.now() - date_obj).days
+            cutoff_date = datetime.now() - timedelta(days=back_days)
+        else:
+            back_days = 0
 
         if back_days > 0:
             cutoff_date = datetime.now() - timedelta(days=back_days)
@@ -422,13 +463,11 @@ class User:
         returns(int): number of completed kata
         """
         date = datetime.strptime(date_str, "%Y-%m-%d")
-        day, month, year = date.day, date.month, date.year
         data_problems = self.completed["data"]
         count = 0
         for item in data_problems:
             date_old = datetime.fromisoformat(item["completedAt"])
-            day2, month2, year2 = date_old.day, date_old.month, date_old.year
-            if day == day2 and month == month2 and year == year2:
+            if date.date() <= date_old.date():
                 count += 1
         return count
 
